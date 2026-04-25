@@ -1,0 +1,17 @@
+node_modules
+.env
+build
+dist
+.vscode
+.idea
+*.log
+.DS_Store
+backend/node_modules
+frontend/node_modules
+backend/dist
+frontend/build
+LIGAR_SISTEMA.bat
+LIGAR_SISTEMA.ps1
+DESLIGAR_SISTEMA.bat
+list-users.js
+reset-pass.js
