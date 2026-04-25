@@ -72,6 +72,7 @@ interface TicketData {
   unreadMessages?: number;
   msgTransfer?: string;
   isTransfered?: boolean;
+  hashFlowId?: string | null;
 }
 
 interface Request {
