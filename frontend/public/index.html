@@ -227,17 +227,7 @@
       const label = document.getElementById("progress-label");
       const splash = document.getElementById("splash");
 
-      async function checkBackend() {
-        try {
-          const response = await fetch('http://127.0.0.1:8080/health');
-          if (response.ok) {
-            console.log("Backend is online");
-          }
-        } catch (e) {
-          console.error("Backend check failed", e);
-        }
-      }
-      checkBackend();
+      // Progresso automático suave
 
       const timer = setInterval(() => {
         if (p < 55) p += 9;
