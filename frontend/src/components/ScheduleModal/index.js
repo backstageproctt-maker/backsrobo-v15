@@ -115,6 +115,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 	const [whatsapps, setWhatsapps] = useState([]);
 	const [selectedWhatsapps, setSelectedWhatsapps] = useState([]);
 	const [loading, setLoading] = useState(false);
+	const [loadingData, setLoadingData] = useState(!!scheduleId);
 	const [queues, setQueues] = useState([]);
 	const [allQueues, setAllQueues] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
@@ -195,6 +196,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 		const { companyId } = user;
 		if (open) {
 			try {
+				setLoadingData(true);
 				(async () => {
 					const { data: contactList } = await api.get('/contacts/list', { params: { companyId: companyId } });
 					let customList = contactList.map((c) => ({ id: c.id, name: c.name, channel: c.channel }));
@@ -234,10 +236,14 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 					}
 
 					setCurrentContact(data.contact);
+					setLoadingData(false);
 				})()
 			} catch (err) {
+				setLoadingData(false);
 				toastError(err);
 			}
+		} else {
+			setLoadingData(false);
 		}
 	}, [scheduleId, contactId, open, user]);
 
@@ -376,7 +382,9 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 				scroll="paper"
 			>
 				<DialogTitle id="form-dialog-title">
-					{schedule.status === 'ERRO' ? 'Erro de Envio' : `Mensagem ${capitalize(schedule.status)}`}
+					{scheduleId
+					? (schedule.status === 'ERRO' ? 'Erro de Envio' : `Mensagem ${capitalize(schedule.status) || 'Pendente'}`)
+					: 'Nova Mensagem Agendada'}
 				</DialogTitle>
 				<div style={{ display: "none" }}>
 					<input
@@ -399,6 +407,11 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 				>
 					{({ touched, errors, isSubmitting, values, setFieldValue }) => (
 						<Form>
+							{loadingData ? (
+								<DialogContent dividers style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+									<CircularProgress />
+								</DialogContent>
+							) : (
 							<DialogContent dividers>
 								<div className={classes.multFieldLine}>
 									<FormControl
@@ -737,6 +750,7 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 									</Grid>
 								)}
 							</DialogContent>
+							)}
 							<DialogActions>
 								{!attachment && !schedule.mediaPath && (
 									<Button
