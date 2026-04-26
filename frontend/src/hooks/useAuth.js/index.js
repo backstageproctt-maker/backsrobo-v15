@@ -184,22 +184,18 @@ Entre em contato com o Suporte para mais informações! `);
   };
 
   const handleLogout = async () => {
-    setLoading(true);
-
+    // Início imediato do logout no Front-end (Instantâneo)
+    setIsAuth(false);
+    setUser({});
+    localStorage.removeItem("token");
+    localStorage.removeItem("cshow");
+    api.defaults.headers.Authorization = undefined;
+    history.push("/login"); // Vai direto para o login sem esperar
+    
     try {
-      // socket.disconnect();
-      await api.delete("/auth/logout");
-      setIsAuth(false);
-      setUser({});
-      localStorage.removeItem("token");
-      localStorage.removeItem("cshow");
-      // localStorage.removeItem("public-token");
-      api.defaults.headers.Authorization = undefined;
-      setLoading(false);
-      history.push("/login");
+      await api.delete("/auth/logout"); // Faz a limpeza no servidor em silêncio
     } catch (err) {
-      toastError(err);
-      setLoading(false);
+      console.log("Erro silencioso no logout (servidor):", err);
     }
   };
 
