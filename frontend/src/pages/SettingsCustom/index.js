@@ -65,7 +65,9 @@ const SettingsCustom = () => {
   const [schedules, setSchedules] = useState([]);
   const [company, setCompany] = useState({});
   const [loading, setLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState({});
+
+  const { user, socket } = useContext(AuthContext);
+  const [currentUser, setCurrentUser] = useState(user);
   const [settings, setSettings] = useState({});
   const [oldSettings, setOldSettings] = useState({});
   const [schedulesEnabled, setSchedulesEnabled] = useState(false);
@@ -75,7 +77,7 @@ const SettingsCustom = () => {
   //novo hook
   const { getAll: getAllSettings } = useCompanySettings();
   const { getAll: getAllSettingsOld } = useSettings();
-  const { user, socket } = useContext(AuthContext);
+
 
   useEffect(() => {
     async function findData() {
@@ -129,7 +131,7 @@ const SettingsCustom = () => {
   };
 
   const isSuper = () => {
-    return currentUser.super;
+    return user.super;
   };
 
   return (
@@ -171,7 +173,7 @@ const SettingsCustom = () => {
                 />
               </TabPanel>
               <OnlyForSuperUser
-                user={currentUser}
+                user={user}
                 yes={() => (
                   <>
                     <TabPanel
@@ -181,6 +183,7 @@ const SettingsCustom = () => {
                     >
                       <CompaniesManager />
                     </TabPanel>
+
 
                     <TabPanel
                       className={classes.container}
@@ -213,7 +216,7 @@ const SettingsCustom = () => {
                 <Options
                   settings={settings}
                   oldSettings={oldSettings}
-                  user={currentUser}
+                  user={user}
                   scheduleTypeChanged={(value) =>
                     setSchedulesEnabled(value === "company")
                   }
