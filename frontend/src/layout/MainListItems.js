@@ -269,10 +269,11 @@ const MainListItems = ({ collapsed, drawerClose }) => {
   const location = useLocation();
 
   const [connectionWarning, setConnectionWarning] = useState(false);
-  const [openCampaignSubmenu, setOpenCampaignSubmenu] = useState(false);
-  const [openFlowSubmenu, setOpenFlowSubmenu] = useState(false);
-  const [openOperationsSubmenu, setOpenOperationsSubmenu] = useState(false);
-  const [openAdminSubmenu, setOpenAdminSubmenu] = useState(false);
+  const [openMenu, setOpenMenu] = useState("");
+  
+  const handleOpenMenu = (menu) => {
+    setOpenMenu((prev) => (prev === menu ? "" : menu));
+  };
   
   const [showCampaigns, setShowCampaigns] = useState(false);
   const [showKanban, setShowKanban] = useState(false);
@@ -476,7 +477,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
       <ListItem
         dense
         button
-        onClick={() => setOpenOperationsSubmenu((prev) => !prev)}
+        onClick={() => handleOpenMenu("operations")}
         className={`${classes.listItem} ${isOperationsActive ? "active" : ""}`}
       >
         <ListItemIcon style={{ minWidth: collapsed ? "0" : "40px", justifyContent: "center" }}>
@@ -493,10 +494,10 @@ const MainListItems = ({ collapsed, drawerClose }) => {
             }
           />
         )}
-        {!collapsed && (openOperationsSubmenu ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
+        {!collapsed && (openMenu === "operations" ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
       </ListItem>
 
-      <Collapse in={openOperationsSubmenu} timeout="auto" unmountOnExit>
+      <Collapse in={openMenu === "operations"} timeout="auto" unmountOnExit>
         <List dense component="div" disablePadding>
           {showSchedules && (
             <ListItemLink
@@ -568,7 +569,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               <ListItem
                 dense
                 button
-                onClick={() => setOpenCampaignSubmenu((prev) => !prev)}
+                onClick={() => handleOpenMenu("campaigns")}
                 className={`${classes.listItem} ${isCampaignRouteActive ? "active" : ""}`}
               >
                 <ListItemIcon style={{ minWidth: collapsed ? "0" : "40px", justifyContent: "center" }}>
@@ -585,9 +586,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     }
                   />
                 )}
-                {!collapsed && (openCampaignSubmenu ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
+                {!collapsed && (openMenu === "campaigns" ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
               </ListItem>
-              <Collapse in={openCampaignSubmenu} timeout="auto" unmountOnExit>
+              <Collapse in={openMenu === "campaigns"} timeout="auto" unmountOnExit>
                 <List dense component="div" disablePadding>
                   <ListItemLink
                     small
@@ -632,7 +633,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
             <ListItem
               dense
               button
-              onClick={() => setOpenFlowSubmenu((prev) => !prev)}
+              onClick={() => handleOpenMenu("flow")}
               className={`${classes.listItem} ${isFlowbuilderRouteActive ? "active" : ""}`}
             >
               <ListItemIcon style={{ minWidth: collapsed ? "0" : "40px", justifyContent: "center" }}>
@@ -649,9 +650,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                   }
                 />
               )}
-              {!collapsed && (openFlowSubmenu ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
+              {!collapsed && (openMenu === "flow" ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
             </ListItem>
-            <Collapse in={openFlowSubmenu} timeout="auto" unmountOnExit>
+            <Collapse in={openMenu === "flow"} timeout="auto" unmountOnExit>
               <List dense component="div" disablePadding>
                 <ListItemLink
                   small
@@ -684,7 +685,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
             <ListItem
               dense
               button
-              onClick={() => setOpenAdminSubmenu((prev) => !prev)}
+              onClick={() => handleOpenMenu("admin")}
               className={`${classes.listItem} ${isAdminActive ? "active" : ""}`}
             >
               <ListItemIcon style={{ minWidth: collapsed ? "0" : "40px", justifyContent: "center" }}>
@@ -701,9 +702,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                   }
                 />
               )}
-              {!collapsed && (openAdminSubmenu ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
+              {!collapsed && (openMenu === "admin" ? <ExpandLessIcon style={{ color: "white" }} /> : <ExpandMoreIcon style={{ color: "white" }} />)}
             </ListItem>
-            <Collapse in={openAdminSubmenu} timeout="auto" unmountOnExit>
+            <Collapse in={openMenu === "admin"} timeout="auto" unmountOnExit>
               <List dense component="div" disablePadding>
                 {showExternalApi && (
                   <ListItemLink

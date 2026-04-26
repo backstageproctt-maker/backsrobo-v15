@@ -56,8 +56,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     height: "100vh",
+    overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
-      height: "calc(100vh - 56px)",
+      height: "100vh",
     },
     backgroundColor: theme.palette.fancyBackground,
     "& .MuiButton-outlinedPrimary": {
@@ -173,9 +174,10 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     overflowX: "hidden",
-    overflowY: "hidden",
+    overflowY: "auto",
     background: "linear-gradient(180deg, #00b4db 0%, #045de9 100%)",
     borderRight: "none",
+    ...theme.scrollbarStylesSoft,
   },
   drawerPaperClose: {
     overflowX: "hidden",
@@ -188,11 +190,20 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: { width: theme.spacing(9) },
     background: "linear-gradient(180deg, #00b4db 0%, #045de9 100%)",
     borderRight: "none",
+    overflowX: "hidden",
   },
 
   appBarSpacer: { minHeight: 48 },
 
-  content: { flex: 1, overflow: "visible", position: "relative" },
+  content: { 
+    flex: 1, 
+    height: "100vh",
+    overflowY: "auto", 
+    position: "relative",
+    paddingTop: "48px",
+    display: "flex",
+    flexDirection: "column",
+  },
 
   container: {
     paddingTop: theme.spacing(4),
@@ -498,7 +509,6 @@ const LoggedInLayout = ({ children }) => {
       </AppBar>
 
       <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
         {children ? children : null}
       </main>
     </div>
