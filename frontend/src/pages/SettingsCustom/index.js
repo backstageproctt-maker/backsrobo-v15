@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
-import { makeStyles, Paper, Tabs, Tab } from "@material-ui/core";
+import { makeStyles, Paper, Tabs, Tab, CircularProgress, Box as MuiBox } from "@material-ui/core";
 
 import TabPanel from "../../components/TabPanel";
 
@@ -161,6 +161,11 @@ const SettingsCustom = () => {
               {isSuper() ? <Tab label="Whitelabel" value={"whitelabel"} /> : null}
             </Tabs>
             <Paper className={classes.paper} elevation={0}>
+              {loading && (
+                <MuiBox display="flex" justifyContent="center" alignItems="center" width="100%" py={4}>
+                  <CircularProgress size={24} />
+                </MuiBox>
+              )}
               <TabPanel
                 className={classes.container}
                 value={tab}
@@ -213,14 +218,16 @@ const SettingsCustom = () => {
                 )}
               />
               <TabPanel className={classes.container} value={tab} name={"options"}>
-                <Options
-                  settings={settings}
-                  oldSettings={oldSettings}
-                  user={user}
-                  scheduleTypeChanged={(value) =>
-                    setSchedulesEnabled(value === "company")
-                  }
-                />
+                {!loading && (
+                  <Options
+                    settings={settings}
+                    oldSettings={oldSettings}
+                    user={user}
+                    scheduleTypeChanged={(value) =>
+                      setSchedulesEnabled(value === "company")
+                    }
+                  />
+                )}
               </TabPanel>
             </Paper>
           </Paper>
