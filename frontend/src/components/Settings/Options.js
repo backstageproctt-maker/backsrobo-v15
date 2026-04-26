@@ -532,14 +532,7 @@ export default function Options(props) {
     setLoadingDirectTicketsToWallets(false);
   }
 
-  // REGRA DE OURO: Se não carregou as configurações ainda, não mostra nada para não pular
-  if (!settings || Object.keys(settings).length === 0) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
-        <CircularProgress style={{ color: "#006B76" }} />
-      </div>
-    );
-  }
+  // Removi a trava de carregamento que estava segurando a página
 
   return (
     <>
