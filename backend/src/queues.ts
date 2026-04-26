@@ -374,23 +374,26 @@ async function handleVerifyCampaigns(job) {
   try {
     await new Promise(r => setTimeout(r, 1500));
 
-    const campaigns: { id: number; scheduledAt: string }[] =
-      await sequelize.query(
-        `SELECT id, "scheduledAt" FROM "Campaigns" c
-        WHERE (
-          "scheduledAt" BETWEEN NOW() - INTERVAL '24 hour' AND NOW() + INTERVAL '3 hour'
-        ) AND status = 'PROGRAMADA'`,
-        { type: QueryTypes.SELECT }
-      );
+    logger.info("Iniciando verificação de campanhas programadas...");
+    const campaigns = await Campaign.findAll({
+      where: {
+        status: "PROGRAMADA",
+        scheduledAt: {
+          [Op.between]: [
+            moment().subtract(24, "hours").toDate(),
+            moment().add(3, "hours").toDate()
+          ]
+        }
+      },
+      attributes: ["id", "scheduledAt"]
+    });
 
     if (campaigns.length > 0) {
       logger.info(`Campanhas encontradas: ${campaigns.length}`);
 
       const promises = campaigns.map(async campaign => {
         try {
-          await sequelize.query(
-            `UPDATE "Campaigns" SET status = 'EM_ANDAMENTO' WHERE id = ${campaign.id}`
-          );
+          await campaign.update({ status: "EM_ANDAMENTO" });
 
           const now = moment();
           const scheduledAt = moment(campaign.scheduledAt);
