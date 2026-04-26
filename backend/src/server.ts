@@ -7,6 +7,7 @@ import Whatsapp from "./models/Whatsapp";
 import BullQueue from './libs/queue';
 import { startQueueProcess } from "./queues";
 import { StartWhatsAppSession } from "./services/WbotServices/StartWhatsAppSession";
+import KeepAlive from "./utils/KeepAlive";
 
 const PORT = Number(process.env.PORT) || 8080;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -42,7 +43,11 @@ const server = app.listen(PORT, HOST, async () => {
     BullQueue.process();
   }
 
+
   logger.info(`Server started on ${HOST}:${PORT}`);
+  
+  // Inicia o despertador para o Render não dormir
+  KeepAlive();
 });
 
 process.on("uncaughtException", err => {

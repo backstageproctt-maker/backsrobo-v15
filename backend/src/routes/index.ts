@@ -52,6 +52,9 @@ import globalConfigRoutes from "./globalConfigRoutes";
 
 const routes = Router();
 
+// Rota de saúde para o Render (Keep-Alive)
+routes.get("/health", (req, res) => res.status(200).send("OK"));
+
 routes.use(userRoutes);
 routes.use("/auth", authRoutes);
 routes.use("/api/messages", apiRoutes);
