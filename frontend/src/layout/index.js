@@ -33,7 +33,7 @@ import BackdropLoading from "../components/BackdropLoading";
 import { i18n } from "../translate/i18n";
 import toastError from "../errors/toastError";
 import AnnouncementsPopover from "../components/AnnouncementsPopover";
-import ChatPopover from "../pages/Chat/ChatPopover";
+// import ChatPopover from "../pages/Chat/ChatPopover";
 
 import { useDate } from "../hooks/useDate";
 import UserLanguageSelector from "../components/UserLanguageSelector";
@@ -487,7 +487,7 @@ const LoggedInLayout = ({ children }) => {
             {user.id && <NotificationsPopOver volume={volume} />}
 
             <AnnouncementsPopover />
-            <ChatPopover />
+            {/* <ChatPopover /> */}
 
             <StyledBadge
               overlap="circular"

@@ -274,9 +274,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
       {showSchedules && <ListItemLink to="/schedules" primary="Agendamentos" icon={<Schedule />} collapsed={collapsed} />}
       <ListItemLink to="/tags" primary="Tags" icon={<LocalOfferIcon />} collapsed={collapsed} />
       
-      {showInternalChat && (
+      {/* {showInternalChat && (
         <ListItemLink to="/chats" primary="Chat Interno" icon={<Badge color="secondary" variant="dot" invisible={invisible}><ForumIcon /></Badge>} collapsed={collapsed} />
-      )}
+      )} */}
 
       {hasHelps && <ListItemLink to="/helps" primary="Ajuda" icon={<HelpOutlineIcon />} collapsed={collapsed} />}
 
