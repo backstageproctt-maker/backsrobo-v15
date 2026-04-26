@@ -343,5 +343,3 @@ const Kanban = () => {
 };
 
 export default Kanban;
-
-export default Kanban;

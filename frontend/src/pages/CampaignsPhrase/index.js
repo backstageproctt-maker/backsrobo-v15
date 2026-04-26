@@ -40,7 +40,7 @@ import { isArray } from "lodash";
 import { useDate } from "../../hooks/useDate";
 import { SocketContext } from "../../context/Socket/SocketContext";
 import { AddCircle, Build, DevicesFold, TextFields } from "@mui/icons-material";
-import { CircularProgress, Grid, Stack } from "@mui/material";
+import { CircularProgress, Grid, Stack, Box } from "@mui/material";
 import { Can } from "../../components/Can";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import CampaignModalPhrase from "../../components/CampaignModalPhrase";
