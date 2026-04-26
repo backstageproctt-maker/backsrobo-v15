@@ -68,20 +68,39 @@ export const ChartsDate = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: themeV5.palette.background.paper,
-        titleColor: themeV5.palette.text.primary,
-        bodyColor: themeV5.palette.text.secondary,
-        borderColor: themeV5.palette.divider,
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        titleColor: "#111",
+        bodyColor: "#444",
+        borderColor: "rgba(0,0,0,0.05)",
         borderWidth: 1,
-        boxPadding: 8,
-        padding: 10,
+        boxPadding: 10,
+        padding: 12,
         usePointStyle: true,
+        cornerRadius: 12,
+        callbacks: {
+          label: (context) => ` Atendimentos: ${context.parsed.y}`
+        }
       },
     },
     scales: {
-      x: { grid: { display: false } },
-      y: { grid: { color: themeV5.palette.divider } },
+      x: { 
+        grid: { display: false },
+        ticks: { color: "#999", font: { weight: 600 } }
+      },
+      y: { 
+        grid: { color: "rgba(0,0,0,0.03)", drawBorder: false },
+        ticks: { color: "#999", font: { weight: 600 }, stepSize: 1 }
+      },
     },
+    elements: {
+      point: {
+        radius: 4,
+        hoverRadius: 6,
+        backgroundColor: "#fff",
+        borderWidth: 3,
+        borderColor: "#0076FF"
+      }
+    }
   };
 
   const dataCharts = {
@@ -90,8 +109,17 @@ export const ChartsDate = () => {
       {
         label: "Tickets",
         data: ticketsData?.data.length > 0 ? ticketsData.data.map(item => item.total) : [],
-        borderColor: PRIMARY_MAIN,
-        backgroundColor: "rgba(0,0,0,0.06)", // preenchimento leve neutro (evita tingir de azul quando o primary não é azul)
+        borderColor: "#0076FF",
+        borderWidth: 4,
+        backgroundColor: (context) => {
+          const chart = context.chart;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return null;
+          const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          gradient.addColorStop(0, "rgba(0, 118, 255, 0.2)");
+          gradient.addColorStop(1, "rgba(0, 118, 255, 0)");
+          return gradient;
+        },
         tension: 0.4,
         fill: true,
       },
@@ -99,66 +127,96 @@ export const ChartsDate = () => {
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 0, background: "transparent" }}>
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-        <Typography component="h2" variant="h6" fontWeight={700} color="text.primary" gutterBottom sx={{ mb: { xs: 1, sm: 0 } }}>
-          {i18n.t("dashboard.users.totalAttendances")}
-        </Typography>
+    <Box sx={{ background: "transparent" }}>
+      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary", letterSpacing: "-0.02em" }}>
+            {i18n.t("dashboard.users.totalAttendances")}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Volume de atendimentos por período
+          </Typography>
+        </Box>
         <Box
           sx={{
-            ml: 1,
-            px: 2,
-            py: 1,
-            backgroundColor: PRIMARY_MAIN,
-            borderRadius: 2,
-            color: PRIMARY_CONTRAST,
-            fontWeight: "bold",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+            px: 3,
+            py: 1.5,
+            backgroundColor: "rgba(0, 118, 255, 0.1)",
+            borderRadius: "16px",
+            color: "#0076FF",
+            fontWeight: 800,
+            fontSize: "1.1rem",
+            border: "1px solid rgba(0, 118, 255, 0.2)"
           }}
         >
-          {i18n.t("dashboard.users.totalLabel", { count: ticketsData?.count || 0 })}
+          {ticketsData?.count || 0} Total
         </Box>
       </Box>
 
-      <Divider sx={{ my: 3 }} />
-
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={4}>
+      <Grid container spacing={3} alignItems="flex-end" sx={{ mb: 5 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", ml: 1, mb: 1, display: "block" }}>DATA INICIAL</Typography>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={brLocale}>
             <DatePicker
               value={initialDate}
               onChange={newValue => setInitialDate(newValue)}
-              label={i18n.t("dashboard.date.initialDate")}
-              renderInput={params => <TextField {...params} fullWidth variant="outlined" size="small" />}
+              renderInput={params => (
+                <TextField 
+                  {...params} 
+                  fullWidth 
+                  size="small"
+                  sx={{ 
+                    "& .MuiOutlinedInput-root": { 
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(0,0,0,0.02)",
+                      border: "none"
+                    } 
+                  }} 
+                />
+              )}
             />
           </LocalizationProvider>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", ml: 1, mb: 1, display: "block" }}>DATA FINAL</Typography>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={brLocale}>
             <DatePicker
               value={finalDate}
               onChange={newValue => setFinalDate(newValue)}
-              label={i18n.t("dashboard.date.finalDate")}
-              renderInput={params => <TextField {...params} fullWidth variant="outlined" size="small" />}
+              renderInput={params => (
+                <TextField 
+                  {...params} 
+                  fullWidth 
+                  size="small"
+                  sx={{ 
+                    "& .MuiOutlinedInput-root": { 
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(0,0,0,0.02)",
+                      border: "none"
+                    } 
+                  }} 
+                />
+              )}
             />
           </LocalizationProvider>
         </Grid>
-        <Grid item xs={12} md>
+        <Grid item xs={12} md={2}>
           <Button
             onClick={handleGetTicketsInformation}
             variant="contained"
             fullWidth
             disabled={isLoading}
             sx={{
-              backgroundColor: PRIMARY_MAIN,
-              color: PRIMARY_CONTRAST,
-              transition: "all .2s ease-in-out",
-              borderRadius: "10px",
+              backgroundColor: "#0076FF",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: "12px",
               py: 1,
+              height: "40px",
+              boxShadow: "0 8px 20px rgba(0, 118, 255, 0.2)",
               "&:hover": {
-                backgroundColor: PRIMARY_DARK,
-                transform: "translateY(-1px)",
-                boxShadow: "0 6px 18px rgba(0,0,0,.15)",
+                backgroundColor: "#0056D2",
+                boxShadow: "0 10px 25px rgba(0, 118, 255, 0.3)",
               }
             }}
           >
@@ -167,20 +225,20 @@ export const ChartsDate = () => {
         </Grid>
       </Grid>
 
-      <Box sx={{ height: 350, position: "relative" }}>
+      <Box sx={{ height: 400, width: "100%", position: "relative" }}>
         {isLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
             <CircularProgress />
           </Box>
         ) : ticketsData?.data.length === 0 ? (
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", bgcolor: "grey.100", borderRadius: 2 }}>
-            <Typography color="textSecondary">Nenhum dado disponível para o período selecionado.</Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", bgcolor: "rgba(0,0,0,0.02)", borderRadius: "20px" }}>
+            <Typography color="textSecondary" sx={{ fontWeight: 600 }}>Nenhum dado disponível para o período selecionado.</Typography>
           </Box>
         ) : (
           <Line options={options} data={dataCharts} />
         )}
       </Box>
-    </Paper>
+    </Box>
   );
 };
 

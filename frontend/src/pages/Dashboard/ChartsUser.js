@@ -70,10 +70,29 @@ export const ChatsUser = () => {
     indexAxis: 'y',
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { display: false }, title: { display: false } },
+    plugins: { 
+      legend: { display: false }, 
+      title: { display: false },
+      tooltip: {
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        titleColor: "#111",
+        bodyColor: "#444",
+        borderColor: "rgba(0,0,0,0.05)",
+        borderWidth: 1,
+        cornerRadius: 12,
+        padding: 12,
+      }
+    },
     scales: {
-      x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-      y: { grid: { display: false } }
+      x: { 
+        beginAtZero: true, 
+        grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+        ticks: { color: "#999", font: { weight: 600 } }
+      },
+      y: { 
+        grid: { display: false },
+        ticks: { color: "#444", font: { weight: 700 } }
+      }
     }
   };
 
@@ -83,53 +102,88 @@ export const ChatsUser = () => {
       {
         label: 'Tickets',
         data: ticketsData?.data?.map(item => item.quantidade) || [],
-        backgroundColor: rgba(PRIMARY_MAIN, 0.35),
-        hoverBackgroundColor: PRIMARY_DARK,
-        borderRadius: 4,
-        barThickness: 20,
+        backgroundColor: (context) => {
+          const chart = context.chart;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return null;
+          const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+          gradient.addColorStop(0, "rgba(0, 118, 255, 0.8)");
+          gradient.addColorStop(1, "rgba(0, 118, 255, 0.4)");
+          return gradient;
+        },
+        hoverBackgroundColor: "#0056D2",
+        borderRadius: 10,
+        barThickness: 25,
       },
     ],
   };
 
   return (
     <Box>
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={4}>
+      <Grid container spacing={3} alignItems="flex-end" sx={{ mb: 5 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", ml: 1, mb: 1, display: "block" }}>DATA INICIAL</Typography>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={brLocale}>
             <DatePicker
               value={initialDate}
               onChange={(newValue) => setInitialDate(newValue)}
-              label={i18n.t("dashboard.date.initialDate")}
-              renderInput={(params) => <TextField {...params} fullWidth size="small" />}
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  fullWidth 
+                  size="small" 
+                  sx={{ 
+                    "& .MuiOutlinedInput-root": { 
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(0,0,0,0.02)",
+                      border: "none"
+                    } 
+                  }} 
+                />
+              )}
             />
           </LocalizationProvider>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", ml: 1, mb: 1, display: "block" }}>DATA FINAL</Typography>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={brLocale}>
             <DatePicker
               value={finalDate}
               onChange={(newValue) => setFinalDate(newValue)}
-              label={i18n.t("dashboard.date.finalDate")}
-              renderInput={(params) => <TextField {...params} fullWidth size="small" />}
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  fullWidth 
+                  size="small"
+                  sx={{ 
+                    "& .MuiOutlinedInput-root": { 
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(0,0,0,0.02)",
+                      border: "none"
+                    } 
+                  }} 
+                />
+              )}
             />
           </LocalizationProvider>
         </Grid>
-        <Grid item xs={12} md>
+        <Grid item xs={12} md={2}>
           <Button
             onClick={handleGetTicketsInformation}
             variant="contained"
             fullWidth
             disabled={isLoading}
             sx={{
-              backgroundColor: PRIMARY_MAIN,
-              color: PRIMARY_CONTRAST,
-              transition: 'all .2s ease-in-out',
-              borderRadius: '10px',
+              backgroundColor: "#0076FF",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: "12px",
               py: 1,
-              '&:hover': {
-                backgroundColor: PRIMARY_DARK,
-                transform: 'translateY(-1px)',
-                boxShadow: '0 6px 18px rgba(0,0,0,.15)',
+              height: "40px",
+              boxShadow: "0 8px 20px rgba(0, 118, 255, 0.2)",
+              "&:hover": {
+                backgroundColor: "#0056D2",
+                boxShadow: "0 10px 25px rgba(0, 118, 255, 0.3)",
               }
             }}
           >
@@ -146,8 +200,8 @@ export const ChatsUser = () => {
         ) : ticketsData?.data?.length > 0 ? (
           <Bar options={options} data={dataCharts} />
         ) : (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', bgcolor: 'grey.100', borderRadius: 2 }}>
-            <Typography color="textSecondary">Nenhum dado para exibir.</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', bgcolor: 'rgba(0,0,0,0.02)', borderRadius: "20px" }}>
+            <Typography color="textSecondary" sx={{ fontWeight: 600 }}>Nenhum dado para exibir.</Typography>
           </Box>
         )}
       </Box>

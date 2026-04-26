@@ -6,7 +6,7 @@ const DonutChart = ({ value, data, colors }) => {
   const chartColors = Array.isArray(colors) ? colors : ["#ccc"];
 
   return (
-    <ResponsiveContainer width="100%" height={200}> 
+    <ResponsiveContainer width="100%" height={250}> 
       <PieChart>
         <Pie
           data={chartData}
@@ -14,9 +14,9 @@ const DonutChart = ({ value, data, colors }) => {
           nameKey="name"
           cx="50%"
           cy="50%"
-          outerRadius={85}
-          innerRadius={65}
-          paddingAngle={3}
+          outerRadius={100}
+          innerRadius={80}
+          paddingAngle={4}
           stroke="none"
         >
           {chartData.map((entry, index) => (
@@ -28,10 +28,10 @@ const DonutChart = ({ value, data, colors }) => {
               const { cx, cy } = viewBox;
               return (
                 <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
-                  <tspan x={cx} y={cy} fontSize="36" fontWeight="bold" fill="#333">
+                  <tspan x={cx} y={cy} fontSize="42" fontWeight="800" fill="#111">
                     {`${value}`}
                   </tspan>
-                  <tspan x={cx} y={cy + 22} fontSize="14" fill="#666">
+                  <tspan x={cx} y={cy + 25} fontSize="14" fontWeight="600" fill="#999" textTransform="uppercase">
                     Score
                   </tspan>
                 </text>
