@@ -558,10 +558,13 @@ const FlowBuilderSingleBlockModal = ({
 
     const fetchTags = async () => {
       try {
-        const { data } = await api.get("/tags");
-        const allTags = data.tags || data;
-        setSystemTags(allTags);
-        setSystemLanes(allTags.filter(tag => tag.kanban > 0));
+        // Busca tags normais (kanban = 0 por padrão no backend)
+        const { data: tagsData } = await api.get("/tags/list");
+        setSystemTags(tagsData);
+
+        // Busca lanes do Kanban especificamente
+        const { data: kanbanData } = await api.get("/tag/kanban");
+        setSystemLanes(kanbanData.lista || []);
       } catch (err) {
         console.log(err);
       }
