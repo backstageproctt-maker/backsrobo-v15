@@ -17,7 +17,8 @@ import ContactList from "./ContactList";
 import Whatsapp from "./Whatsapp";
 import User from "./User";
 import Queue from "./Queue";
-import Files from "./Files"; // Adicionada a importação do modelo Files
+import Files from "./Files";
+import Tag from "./Tag";
 
 @Table({ tableName: "Campaigns" })
 class Campaign extends Model<Campaign> {
@@ -136,6 +137,13 @@ class Campaign extends Model<Campaign> {
 
   @Column({ defaultValue: "disabled" })
   openTicket: string;
+
+  @ForeignKey(() => Tag)
+  @Column
+  tagListId: number;
+
+  @BelongsTo(() => Tag)
+  tagList: Tag;
 }
 
 export default Campaign;
