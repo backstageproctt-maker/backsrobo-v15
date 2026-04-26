@@ -128,9 +128,6 @@ const SettingsCustom = () => {
     setLoading(false);
   };
 
-  const isSuper = () => {
-    return currentUser.super;
-  };
 
   return (
     <MainContainer className={classes.root}>
@@ -153,10 +150,10 @@ const SettingsCustom = () => {
             >
               <Tab label={i18n.t("settings.tabs.options")} value={"options"} />
               {schedulesEnabled && <Tab label="Horários" value={"schedules"} />}
-              {isSuper() ? <Tab label="Empresas" value={"companies"} /> : null}
-              {isSuper() ? <Tab label={i18n.t("settings.tabs.plans")} value={"plans"} /> : null}
-              {isSuper() ? <Tab label={i18n.t("settings.tabs.helps")} value={"helps"} /> : null}
-              {isSuper() ? <Tab label="Whitelabel" value={"whitelabel"} /> : null}
+              {user.super ? <Tab label="Empresas" value={"companies"} /> : null}
+              {user.super ? <Tab label={i18n.t("settings.tabs.plans")} value={"plans"} /> : null}
+              {user.super ? <Tab label={i18n.t("settings.tabs.helps")} value={"helps"} /> : null}
+              {user.super ? <Tab label="Whitelabel" value={"whitelabel"} /> : null}
             </Tabs>
             <Paper className={classes.paper} elevation={0}>
               <TabPanel
@@ -171,7 +168,7 @@ const SettingsCustom = () => {
                 />
               </TabPanel>
               <OnlyForSuperUser
-                user={currentUser}
+                user={user}
                 yes={() => (
                   <>
                     <TabPanel
