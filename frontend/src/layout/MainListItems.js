@@ -106,12 +106,16 @@ const useStyles = makeStyles((theme) => ({
     },
     "&.active": {
       backgroundColor: "rgba(255, 255, 255, 0.2)",
-    }
+    },
+    justifyContent: "center",
   },
   listItemText: {
     fontSize: "14px",
     color: "#FFFFFF",
     fontWeight: 500,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   iconHoverActive: {
     display: "flex",
@@ -176,22 +180,24 @@ function ListItemLink(props) {
           button
           component={renderLink}
           className={`${classes.listItem} ${isActive ? "active" : ""}`}
-          style={small ? { paddingLeft: "32px" } : {}}
+          style={small ? { paddingLeft: collapsed ? "0" : "32px" } : {}}
         >
           {icon ? (
-            <ListItemIcon style={{ minWidth: "40px" }}>
+            <ListItemIcon style={{ minWidth: collapsed ? "0" : "40px", justifyContent: "center" }}>
               <div className={classes.iconHoverActive} style={{ color: "#FFFFFF" }}>
                 {icon}
               </div>
             </ListItemIcon>
           ) : null}
-          <ListItemText
-            primary={
-              <Typography className={classes.listItemText}>
-                {primary}
-              </Typography>
-            }
-          />
+          {!collapsed && (
+            <ListItemText
+              primary={
+                <Typography className={classes.listItemText}>
+                  {primary}
+                </Typography>
+              }
+            />
+          )}
         </ListItem>
       </li>
     </ConditionalTooltip>
@@ -428,9 +434,11 @@ const MainListItems = ({ collapsed, drawerClose }) => {
 
   return (
     <div onClick={drawerClose}>
-      <ListSubheader inset className={classes.listSubheader}>
-        Overview
-      </ListSubheader>
+      {!collapsed && (
+        <ListSubheader inset className={classes.listSubheader}>
+          Overview
+        </ListSubheader>
+      )}
       <Can
         role={
           (user.profile === "user" && user.showDashboard === "enabled") ||
@@ -484,9 +492,11 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         tooltip={collapsed}
       />
 
-      <ListSubheader inset className={classes.listSubheader}>
-        {i18n.t("mainDrawer.listItems.operation", "Operação")}
-      </ListSubheader>
+      {!collapsed && (
+        <ListSubheader inset className={classes.listSubheader}>
+          {i18n.t("mainDrawer.listItems.operation", "Operação")}
+        </ListSubheader>
+      )}
       <ListItemLink
         to="/quick-messages"
         primary={i18n.t("mainDrawer.listItems.quickMessages")}
@@ -575,9 +585,11 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         perform="dashboard:view"
         yes={() => (
           <>
-      <ListSubheader inset className={classes.listSubheader}>
-        {i18n.t("mainDrawer.listItems.administration", "Administração")}
-      </ListSubheader>
+            {!collapsed && (
+              <ListSubheader inset className={classes.listSubheader}>
+                {i18n.t("mainDrawer.listItems.administration", "Administração")}
+              </ListSubheader>
+            )}
             {showCampaigns && (
               <Can
                 role={user.profile}
