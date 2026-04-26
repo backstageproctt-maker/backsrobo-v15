@@ -379,7 +379,7 @@ async function handleVerifyCampaigns(job) {
         scheduledAt: {
           [Op.between]: [
             moment().subtract(24, "hours").toDate(),
-            moment().add(3, "hours").toDate()
+            moment().add(7, "days").toDate()  // Expandido de 3h para 7 dias
           ]
         }
       },
@@ -391,20 +391,25 @@ async function handleVerifyCampaigns(job) {
 
       const promises = campaigns.map(async campaign => {
         try {
-          await campaign.update({ status: "EM_ANDAMENTO" });
-
           const now = moment();
           const scheduledAt = moment(campaign.scheduledAt);
           const delay = scheduledAt.diff(now, "milliseconds");
+
+          // Só marca como EM_ANDAMENTO se o disparo é em menos de 5 minutos
+          if (delay <= 5 * 60 * 1000) {
+            await campaign.update({ status: "EM_ANDAMENTO" });
+          }
+
           logger.info(
-            `Campanha enviada para a fila de processamento: Campanha=${campaign.id}, Delay Inicial=${delay}`
+            `Campanha enviada para a fila: Campanha=${campaign.id}, Delay=${delay}ms`
           );
 
           return campaignQueue.add(
             "ProcessCampaign",
-            { id: campaign.id, delay },
+            { id: campaign.id, delay: Math.max(0, delay) },
             {
               priority: 3,
+              jobId: `campaign-${campaign.id}`,
               removeOnComplete: { age: 60 * 60, count: 10 },
               removeOnFail: { age: 60 * 60, count: 10 }
             }
