@@ -244,7 +244,6 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 
 					setCurrentContact(data.contact);
 					setLoadingData(false);
-				})()
 				} catch (err) {
 					setLoadingData(false);
 					toastError(err);
