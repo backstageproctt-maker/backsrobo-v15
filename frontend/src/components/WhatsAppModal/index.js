@@ -449,10 +449,20 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   const handleClose = () => {
     onClose();
     setWhatsApp(initialState);
+    setSelectedQueueIds([]);
+    setTab("general");
     setEnableImportMessage(false);
-    setAttachment(null)
-    setAttachmentName("")
+    setImportOldMessagesGroups(false);
+    setClosedTicketsPostImported(false);
+    setImportOldMessages(moment().add(-1, "days").format("YYYY-MM-DDTHH:mm"));
+    setImportRecentMessages(moment().add(-1, "minutes").format("YYYY-MM-DDTHH:mm"));
+    setAttachment(null);
+    setAttachmentName("");
     setCopied(false);
+    setSelectedPrompt(null);
+    setFlowIdNotPhrase(null);
+    setFlowIdWelcome(null);
+    setSelectedIntegration(null);
   };
 
   const handleTabChange = (event, newValue) => {
