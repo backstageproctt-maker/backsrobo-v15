@@ -12,8 +12,8 @@ const CreateService = async (data: Data): Promise<ContactList> => {
 
   const ticketnoteSchema = Yup.object().shape({
     name: Yup.string()
-      .min(3, "ERR_CONTACTLIST_INVALID_NAME")
-      .required("ERR_CONTACTLIST_REQUIRED")
+      .min(2, "O nome da lista deve ter pelo menos 2 caracteres")
+      .required("O nome da lista é obrigatório")
   });
 
   try {
