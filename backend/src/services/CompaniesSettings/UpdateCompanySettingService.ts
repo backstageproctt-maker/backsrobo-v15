@@ -14,9 +14,21 @@ type Params = {
 
 const UpdateCompanySettingsService = async ({companyId, column, data}:Params): Promise<any> => {
 
-  const [results, metadata] = await sequelize.query(`UPDATE "CompaniesSettings" SET "${column}"='${data}' WHERE "companyId"=${companyId}`)
+  const settings = await CompaniesSettings.findOne({
+    where: { companyId }
+  });
 
-  return results;
+  if (settings) {
+    await settings.update({ [column]: data });
+  } else {
+    // If for some reason it doesn't exist, create it
+    await CompaniesSettings.create({
+      companyId,
+      [column]: data
+    });
+  }
+
+  return { success: true };
 };
 
 export default UpdateCompanySettingsService;
