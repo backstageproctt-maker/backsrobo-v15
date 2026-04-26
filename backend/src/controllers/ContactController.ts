@@ -172,6 +172,21 @@ export const getContact = async (
   return res.status(200).json(contact);
 };
 
+// Normaliza número para o padrão WhatsApp Brasil:
+// - Remove + e não-dígitos
+// - Se tiver 10 ou 11 dígitos (sem DDI), adiciona 55
+const normalizeBrazilianNumber = (raw: string): string => {
+  // Remove tudo que não é dígito
+  let num = raw.replace(/[^\d]/g, "");
+
+  // Se tiver 10 ou 11 dígitos, é um número local sem DDI — adiciona 55
+  if (num.length === 10 || num.length === 11) {
+    num = `55${num}`;
+  }
+
+  return num;
+};
+
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { companyId } = req.user;
   const newContact: ContactData = req.body;
@@ -188,8 +203,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError("Contact already exists");
   }
 
-  // Remove o + e qualquer não-dígito antes de validar (usuário pode digitar +5511...)
-  newContact.number = newContact.number.replace(/[^\d]/g, "");
+  // Normaliza: remove +, espaços e adiciona 55 se necessário
+  newContact.number = normalizeBrazilianNumber(newContact.number);
 
   const schema = Yup.object().shape({
     name: Yup.string().required(),
@@ -238,9 +253,9 @@ export const update = async (
   const { companyId } = req.user;
   const { contactId } = req.params;
 
-  // Remove o + e qualquer não-dígito antes de validar
+  // Normaliza: remove + e adiciona 55 se necessário
   if (contactData.number) {
-    contactData.number = contactData.number.replace(/[^\d]/g, "");
+    contactData.number = normalizeBrazilianNumber(contactData.number);
   }
 
   const schema = Yup.object().shape({
