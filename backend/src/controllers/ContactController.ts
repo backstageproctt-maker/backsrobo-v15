@@ -188,7 +188,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError("Contact already exists");
   }
 
-  newContact.number = newContact.number.replace("-", "").replace(" ", "");
+  // Remove o + e qualquer não-dígito antes de validar (usuário pode digitar +5511...)
+  newContact.number = newContact.number.replace(/[^\d]/g, "");
 
   const schema = Yup.object().shape({
     name: Yup.string().required(),
@@ -236,6 +237,11 @@ export const update = async (
   const contactData: ContactData = req.body;
   const { companyId } = req.user;
   const { contactId } = req.params;
+
+  // Remove o + e qualquer não-dígito antes de validar
+  if (contactData.number) {
+    contactData.number = contactData.number.replace(/[^\d]/g, "");
+  }
 
   const schema = Yup.object().shape({
     name: Yup.string(),

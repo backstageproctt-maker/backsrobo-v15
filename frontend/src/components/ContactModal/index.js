@@ -172,8 +172,8 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 									label={i18n.t("contactModal.form.number")}
 									name="number"
 									error={touched.number && Boolean(errors.number)}
-									helperText={touched.number && errors.number}
-									placeholder="5513912344321"
+									helperText={(touched.number && errors.number) || "Ex: 5511999887766 ou +5511999887766"}
+									placeholder="5511999887766"
 									variant="outlined"
 									margin="dense"
 								/>
