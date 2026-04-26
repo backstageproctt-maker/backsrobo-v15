@@ -149,7 +149,11 @@ export const remove = async (
     const user = await User.findByPk(id);
     await user.update({ online: false });
   }
-  res.clearCookie("jrt");
+  res.clearCookie("jrt", { 
+    httpOnly: true,
+    secure: true, 
+    sameSite: "none" 
+  });
 
   return res.send();
 };
