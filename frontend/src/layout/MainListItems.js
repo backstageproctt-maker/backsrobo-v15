@@ -331,7 +331,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
             {showOpenAi && <ListItemLink to="/prompts" primary="Assistente IA" icon={<AllInclusive />} collapsed={collapsed} />}
             {showIntegrations && <ListItemLink to="/queue-integration" primary="Integrações" icon={<DeviceHubOutlined />} collapsed={collapsed} />}
             <ListItemLink to="/connections" primary="Conexões" icon={<PhonelinkSetup />} collapsed={collapsed} />
-            <ListItemLink to="/files" primary="Arquivos" icon={<AttachFile />} collapsed={collapsed} />
+            {/* <ListItemLink to="/files" primary="Arquivos" icon={<AttachFile />} collapsed={collapsed} /> */}
             <ListItemLink to="/financeiro" primary="Financeiro" icon={<LocalAtmIcon />} collapsed={collapsed} />
             <ListItemLink to="/settings" primary="Configurações" icon={<SettingsOutlinedIcon />} collapsed={collapsed} />
             <ListItemLink to="/global-config" primary="Config. Globais" icon={<BusinessIcon />} collapsed={collapsed} />
