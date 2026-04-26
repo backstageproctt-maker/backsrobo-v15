@@ -96,6 +96,66 @@ const App = () => {
             inputBackground: mode === "light" ? "#FFFFFF" : "#333",
             barraSuperior: mode === "light" ? primaryColorLight : "#666",
           },
+          typography: {
+            fontFamily: '"Inter", "Outfit", "Roboto", "Helvetica", "Arial", sans-serif',
+            h1: { fontFamily: '"Outfit", sans-serif', fontWeight: 800 },
+            h2: { fontFamily: '"Outfit", sans-serif', fontWeight: 800 },
+            h3: { fontFamily: '"Outfit", sans-serif', fontWeight: 800 },
+            h4: { fontFamily: '"Outfit", sans-serif', fontWeight: 800 },
+            h5: { fontFamily: '"Outfit", sans-serif', fontWeight: 800 },
+            h6: { fontFamily: '"Outfit", sans-serif', fontWeight: 800 },
+            subtitle1: { fontWeight: 600 },
+            subtitle2: { fontWeight: 600 },
+            body1: { fontSize: "0.95rem", letterSpacing: "-0.01em" },
+            body2: { fontSize: "0.85rem", letterSpacing: "-0.01em" },
+            button: { textTransform: "none", fontWeight: 700 },
+          },
+          overrides: {
+            MuiButton: {
+              root: {
+                borderRadius: "12px",
+                padding: "8px 16px",
+                fontWeight: 700,
+              },
+              contained: {
+                boxShadow: "none",
+                "&:hover": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                },
+              },
+            },
+            MuiIconButton: {
+              root: {
+                borderRadius: "10px",
+                padding: "8px",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(0, 180, 219, 0.1)",
+                  transform: "scale(1.1)",
+                },
+              },
+            },
+            MuiPaper: {
+              rounded: {
+                borderRadius: "16px",
+              },
+              elevation1: {
+                boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+              },
+            },
+            MuiTableCell: {
+              head: {
+                fontWeight: 800,
+                textTransform: "uppercase",
+                fontSize: "0.75rem",
+                letterSpacing: "0.05em",
+                color: "#888",
+              },
+              root: {
+                borderBottom: "1px solid rgba(0,0,0,0.04)",
+              },
+            },
+          },
           mode,
           appLogoLight,
           appLogoDark,
