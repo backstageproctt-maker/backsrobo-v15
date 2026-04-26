@@ -9,6 +9,7 @@ import { Grid, Paper } from "@material-ui/core";
 import Title from "../../components/Title";
 import ForbiddenPage from "../../components/ForbiddenPage";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import MainContainer from "../../components/MainContainer";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -19,10 +20,17 @@ const useStyles = makeStyles((theme) => ({
   },
   mainPaper: {
     display: "flex",
-    padding: theme.spacing(1),
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
-    alignItems: "center"
+    alignItems: "center",
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
+    flex: 1,
+    height: "100%",
   },
   fixedHeightPaper: {
     padding: theme.spacing(2),
@@ -45,26 +53,23 @@ const ChatMoments = () => {
   const classes = useStyles();
   const { user } = useContext(AuthContext)
   return (
-
-    user.profile === "user" && user.allowRealTime === "disabled" ?
-      <ForbiddenPage />
-      :
-      <MainHeader>
-        <Grid style={{ width: "99.6%" }} container justifyContent="center" alignItems="flex-start">
-          <Grid xs={12} sm={8} xl={4} item >
+    <MainContainer>
+      {user.profile === "user" && user.allowRealTime === "disabled" ?
+        <ForbiddenPage />
+        :
+        <>
+          <MainHeader>
             <Title>{"Painel de Atendimentos"}</Title>
-          </Grid>
-          <Grid style={{ width: "100%", height: "100vh" }} item >
-            <Paper
-              className={classes.mainPaper}
-              variant="outlined"
-              style={{ maxWidth: "100%" }}
-            >
-              <MomentsUser />
-            </Paper>
-          </Grid>
-        </Grid>
-      </MainHeader>
+          </MainHeader>
+          <Paper
+            className={classes.mainPaper}
+            variant="outlined"
+          >
+            <MomentsUser />
+          </Paper>
+        </>
+      }
+    </MainContainer>
   );
 };
 

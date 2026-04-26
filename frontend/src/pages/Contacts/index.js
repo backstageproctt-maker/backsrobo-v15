@@ -226,112 +226,66 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
-  // ESTILOS PARA A ABA MAPA
-  legendContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginBottom: "20px",
-  },
-  legendItem: {
-    display: "flex",
-    alignItems: "center",
-    margin: "5px 10px",
-  },
-  legendColor: {
-    width: "10px",
-    height: "10px",
-    borderRadius: "50%",
-    marginRight: "5px",
-    backgroundColor: "#FFA500",
-  },
-  totalContactsBar: {
-    backgroundColor: theme.palette.primary.main, // usa cor primária do whitelabel
-    padding: "10px",
-    textAlign: "center",
-    color: "white",
-    marginBottom: "20px",
-    borderRadius: "4px",
-  },
-  legendCard: {
-    marginBottom: "20px",
-    padding: "10px",
-    backgroundColor: "#e8e8e8",
-    borderRadius: "8px",
-    boxShadow: "none",
-  },
-
-  // ESTILO DOS CARDS DE CONTATO (MODELO DA SUA PRINT)
   contactCard: {
-    backgroundColor: "#e7edf3",
-    borderRadius: 8,
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    borderRadius: "20px",
+    padding: theme.spacing(2),
     display: "flex",
     flexDirection: "column",
     height: "100%",
+    border: "1px solid rgba(0,0,0,0.05)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "translateY(-5px)",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+      borderColor: "#00b4db",
+    },
   },
   cardHeader: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing(1),
+    marginBottom: theme.spacing(1.5),
   },
   cardAvatar: {
     marginRight: theme.spacing(2),
-    width: 48,
-    height: 48,
+    width: 54,
+    height: 54,
+    borderRadius: "16px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
   },
   cardNumber: {
-    color: theme.palette.text.secondary,
+    color: "#666",
     fontSize: "0.85rem",
+    fontWeight: 500,
   },
   cardLabel: {
     fontSize: "0.8rem",
-    fontWeight: 500,
+    fontWeight: 700,
     marginTop: theme.spacing(0.5),
+    color: "#444",
   },
   cardFooter: {
-    marginTop: theme.spacing(2),
+    marginTop: "auto",
+    paddingTop: theme.spacing(2),
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    borderTop: "1px solid rgba(0,0,0,0.03)",
   },
-  actionsRight: {
-    display: "flex",
-    gap: theme.spacing(1),
-  },
-  actionBtnWhats: {
-    backgroundColor: "#25D366",
-    color: "#fff",
-    "&:hover": {
-      backgroundColor: "#1ebe5b",
-    },
-  },
-  actionBtnEdit: {
-    backgroundColor: "#2196f3",
-    color: "#fff",
-    "&:hover": {
-      backgroundColor: "#1976d2",
-    },
-  },
-  actionBtnBlock: {
-    backgroundColor: "#ff9800",
-    color: "#fff",
-    "&:hover": {
-      backgroundColor: "#fb8c00",
-    },
-  },
-  actionBtnDelete: {
-    backgroundColor: "#f44336",
-    color: "#fff",
-    "&:hover": {
-      backgroundColor: "#e53935",
-    },
-  },
+  actionBtn: {
+    borderRadius: "10px",
+    padding: "8px",
+    minWidth: "auto",
+  }
 }));
 
 const Contacts = () => {
@@ -758,8 +712,15 @@ const Contacts = () => {
               <React.Fragment>
                 <Button
                   variant="contained"
-                  color="primary"
                   {...bindTrigger(popupState)}
+                  sx={{
+                    background: "rgba(0,0,0,0.05)",
+                    color: "#444",
+                    fontWeight: 700,
+                    borderRadius: "12px",
+                    padding: "10px 20px",
+                    boxShadow: "none",
+                  }}
                 >
                   Importar / Exportar
                   <ArrowDropDown />
@@ -804,10 +765,17 @@ const Contacts = () => {
             variant="contained"
             onClick={() => setConfirmDeleteManyOpen(true)}
             disabled={selectedContactIds.length === 0 || loading}
-            style={{
-              marginRight: 8,
-              backgroundColor: theme.palette.primary.main,
+            sx={{
+              marginRight: 1,
+              background: "linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%)",
               color: "white",
+              fontWeight: 700,
+              borderRadius: "12px",
+              boxShadow: "0 4px 15px rgba(255, 75, 43, 0.2)",
+              "&:disabled": {
+                background: "#ccc",
+                color: "#666"
+              }
             }}
           >
             Deletar Selecionados ({selectedContactIds.length})
@@ -815,8 +783,15 @@ const Contacts = () => {
 
           <Button
             variant="contained"
-            color="primary"
             onClick={handleOpenContactModal}
+            sx={{
+              background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: "12px",
+              padding: "10px 20px",
+              boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+            }}
           >
             {i18n.t("contacts.buttons.add")}
           </Button>
@@ -838,6 +813,22 @@ const Contacts = () => {
         value={tabValue}
         onChange={handleTabChange}
         aria-label="abas-contatos-mapa"
+        indicatorColor="primary"
+        textColor="primary"
+        sx={{
+          mb: 2,
+          '& .MuiTabs-indicator': {
+            height: 4,
+            borderRadius: '4px 4px 0 0',
+            background: "linear-gradient(90deg, #00b4db 0%, #045de9 100%)",
+          },
+          '& .MuiTab-root': {
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            textTransform: 'none',
+            minWidth: 120,
+          }
+        }}
       >
         <Tab label="Contatos" />
         <Tab label="Mapa" />

@@ -26,6 +26,10 @@ import { has, isObject } from "lodash";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import withWidth, { isWidthUp } from "@material-ui/core/withWidth";
 import { i18n } from "../../translate/i18n";
+import MainContainer from "../../components/MainContainer";
+import MainHeader from "../../components/MainHeader";
+import Title from "../../components/Title";
+import { Box } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
@@ -33,19 +37,21 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     position: "relative",
     flex: 1,
-    padding: theme.spacing(2),
-    height: `calc(100% - 48px)`,
-    overflowY: "hidden",
-    border: "1px solid rgba(0, 0, 0, 0.12)",
+    height: "100%",
+    overflow: "hidden",
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
   gridContainer: {
     flex: 1,
     height: "100%",
-    border: "1px solid rgba(0, 0, 0, 0.12)",
-    background: theme.palette.background.color,
   },
   gridItem: {
     height: "100%",
+    borderRight: "1px solid rgba(0, 0, 0, 0.05)",
   },
   gridItemTab: {
     height: "92%",
@@ -53,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
   btnContainer: {
     textAlign: "right",
-    padding: 10,
+    padding: theme.spacing(2),
   },
 }));
 
@@ -344,8 +350,16 @@ function Chat(props) {
                 setDialogType("new");
                 setShowDialog(true);
               }}
-              color="primary"
+              fullWidth
               variant="contained"
+              sx={{
+                background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                color: "#fff",
+                fontWeight: 700,
+                borderRadius: "12px",
+                padding: "10px 20px",
+                boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+              }}
             >
               {i18n.t("chatInternal.new")}
             </Button>
@@ -434,7 +448,10 @@ function Chat(props) {
   };
 
   return (
-    <>
+    <MainContainer>
+      <MainHeader>
+        <Title>Chat Interno</Title>
+      </MainHeader>
       <ChatModal
         type={dialogType}
         open={showDialog}
@@ -451,7 +468,7 @@ function Chat(props) {
       <Paper className={classes.mainContainer}>
         {isWidthUp("md", props.width) ? renderGrid() : renderTab()}
       </Paper>
-    </>
+    </MainContainer>
   );
 }
 

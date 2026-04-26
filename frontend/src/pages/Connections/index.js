@@ -62,10 +62,14 @@ import { Can } from "../../components/Can";
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    // padding: theme.spacing(1),
-    padding: theme.padding,
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
   customTableCell: {
     display: "flex",
@@ -73,17 +77,18 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   tooltip: {
-    backgroundColor: "#f5f5f9",
-    color: "rgba(0, 0, 0, 0.87)",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    color: "#111",
     fontSize: theme.typography.pxToRem(14),
-    border: "1px solid #dadde9",
-    maxWidth: 450,
+    border: "1px solid rgba(0,0,0,0.05)",
+    borderRadius: "12px",
+    backdropFilter: "blur(5px)",
   },
   tooltipPopper: {
     textAlign: "center",
   },
   buttonProgress: {
-    color: green[500],
+    color: "#00b4db",
   },
 }));
 
@@ -591,16 +596,36 @@ const Connections = () => {
             <MainHeaderButtonsWrapper>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={restartWhatsapps}
+                sx={{
+                  background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                  color: "#fff",
+                  fontWeight: 700,
+                  borderRadius: "12px",
+                  padding: "10px 20px",
+                  boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                  "&:hover": {
+                    boxShadow: "0 10px 25px rgba(0, 180, 219, 0.3)",
+                  }
+                }}
               >
                 {i18n.t("connections.restartConnections")}
               </Button>
 
               <Button
                 variant="contained"
-                color="primary"
                 onClick={() => openInNewTab(supportWhatsapp)}
+                sx={{
+                  background: "rgba(0,0,0,0.05)",
+                  color: "#444",
+                  fontWeight: 700,
+                  borderRadius: "12px",
+                  padding: "10px 20px",
+                  boxShadow: "none",
+                  "&:hover": {
+                    background: "rgba(0,0,0,0.08)",
+                  }
+                }}
               >
                 {i18n.t("connections.callSupport")}
               </Button>
@@ -614,8 +639,15 @@ const Connections = () => {
                         <>
                           <Button
                             variant="contained"
-                            color="primary"
                             {...bindTrigger(popupState)}
+                            sx={{
+                              background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                              color: "#fff",
+                              fontWeight: 700,
+                              borderRadius: "12px",
+                              padding: "10px 20px",
+                              boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                            }}
                           >
                             {i18n.t("connections.newConnection")}
                           </Button>
@@ -768,23 +800,23 @@ const Connections = () => {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center">Channel</TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>Channel</TableCell>
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("connections.table.name")}
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("connections.table.number")}
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("connections.table.status")}
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("connections.table.session")}
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("connections.table.lastUpdate")}
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("connections.table.default")}
                   </TableCell>
                   <Can

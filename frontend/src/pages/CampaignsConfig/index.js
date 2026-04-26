@@ -31,25 +31,28 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
-    // padding: theme.padding,
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
   textRight: {
     textAlign: "right",
+    marginTop: theme.spacing(2),
   },
   tabPanelsContainer: {
-    // padding: theme.spacing(2),
-    padding: theme.padding,
-  },
-  paper: {
     padding: theme.spacing(2),
-    display: "flex",
-    alignItems: "center",
-    marginBottom: 12,
   },
-
+  formControl: {
+    marginBottom: theme.spacing(2),
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "12px",
+    }
+  },
 }));
 
 const initialSettings = {
@@ -398,8 +401,15 @@ const CampaignsConfig = () => {
               </Button> */}
                     <Button
                       onClick={saveSettings}
-                      color="primary"
                       variant="contained"
+                      sx={{
+                        background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                        color: "#fff",
+                        fontWeight: 700,
+                        borderRadius: "12px",
+                        padding: "10px 30px",
+                        boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                      }}
                     >
                       {i18n.t("campaigns.settings.save")}
                     </Button>

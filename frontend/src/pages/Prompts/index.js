@@ -36,14 +36,14 @@ import ForbiddenPage from "../../components/ForbiddenPage";
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
-  },
-  customTableCell: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
 }));
 
@@ -212,8 +212,15 @@ const Prompts = () => {
             <MainHeaderButtonsWrapper>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={handleOpenPromptModal}
+                sx={{
+                  background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                  color: "#fff",
+                  fontWeight: 700,
+                  borderRadius: "12px",
+                  padding: "10px 20px",
+                  boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                }}
               >
                 {i18n.t("prompts.buttons.add")}
               </Button>
@@ -223,16 +230,16 @@ const Prompts = () => {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="left">
+                  <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("prompts.table.name")}
                   </TableCell>
-                  <TableCell align="left">
+                  <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("prompts.table.queue")}
                   </TableCell>
-                  <TableCell align="left">
+                  <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("prompts.table.max_tokens")}
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                     {i18n.t("prompts.table.actions")}
                   </TableCell>
                 </TableRow>

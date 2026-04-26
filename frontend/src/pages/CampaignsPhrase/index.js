@@ -95,11 +95,14 @@ const reducer = (state, action) => {
 const useStyles = makeStyles(theme => ({
   mainPaper: {
     flex: 1,
-    backgroundColor: colorBackgroundTable(),
-    borderRadius: 12,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
-    ...theme.scrollbarStyles
+    padding: theme.spacing(3),
+    overflowY: "auto",
+    ...theme.scrollbarStyles,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   }
 }));
 
@@ -212,8 +215,15 @@ const CampaignsPhrase = () => {
                     setCampaignFlowSelected();
                     setModalOpenPhrase(true);
                   }}
-                  color="primary"
-                  style={{ textTransform: "none" }}
+                  sx={{
+                    background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                    color: "#fff",
+                    fontWeight: 700,
+                    borderRadius: "12px",
+                    padding: "10px 20px",
+                    boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                    textTransform: "none",
+                  }}
                 >
                   <Stack direction={"row"} gap={1}>
                     <AddCircle />
@@ -231,14 +241,14 @@ const CampaignsPhrase = () => {
         onScroll={handleScroll}
       >
         <Stack>
-          <Grid container style={{ padding: "8px" }}>
-            <Grid item xs={4} style={{ color: colorTopTable() }}>
+          <Grid container style={{ padding: "16px", marginBottom: "8px" }}>
+            <Grid item xs={4} style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
               Nome
             </Grid>
-            <Grid item xs={4} style={{ color: colorTopTable() }} align="center">
+            <Grid item xs={4} style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }} align="center">
               Status
             </Grid>
-            <Grid item xs={4} align="end" style={{ color: colorTopTable() }}>
+            <Grid item xs={4} align="end" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
               {i18n.t("contacts.table.actions")}
             </Grid>
           </Grid>
@@ -249,22 +259,24 @@ const CampaignsPhrase = () => {
                   container
                   key={flow.id}
                   sx={{
-                  padding: "8px",
-                  backgroundColor: theme.palette.primary.main,
-                  color: "#fff",
-                 borderRadius: 4,
-                 marginTop: 0.5,
-                "&:hover": {
-                 backgroundColor: theme.palette.primary.dark,
-               },
-                }}
-
+                    padding: "16px",
+                    background: "rgba(255, 255, 255, 0.5)",
+                    borderRadius: "16px",
+                    marginTop: 1.5,
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      background: "rgba(255, 255, 255, 0.9)",
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+                    },
+                  }}
                 >
                   <Grid item xs={4}>
                     <Stack
                       justifyContent={"center"}
                       height={"100%"}
-                      style={{ color: "#ededed" }}
+                      style={{ color: "#333", fontWeight: 700 }}
                     >
                       <Stack direction={"row"}>
                         <TextFields />
@@ -274,8 +286,9 @@ const CampaignsPhrase = () => {
                       </Stack>
                     </Stack>
                   </Grid>
-                  <Grid item xs={4} align="center" style={{ color: "#ededed" }}>
-                    <Stack justifyContent={"center"} height={"100%"}>
+                  <Grid item xs={4} align="center" style={{ color: "#666" }}>
+                    <Stack justifyContent={"center"} height={"100%"} direction="row" alignItems="center" gap={1}>
+                      <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: flow.status ? "#25d366" : "#ff4d4d" }} />
                       {flow.status ? "Ativo" : "Desativado"}
                     </Stack>
                   </Grid>
@@ -287,7 +300,7 @@ const CampaignsPhrase = () => {
                         setModalOpenPhrase(true);
                       }}
                     >
-                      <EditIcon style={{ color: "#ededed" }} />
+                      <EditIcon style={{ color: "#333" }} />
                     </IconButton>
                     <Can
                       role={user.profile}
@@ -300,7 +313,7 @@ const CampaignsPhrase = () => {
                             setDeletingContact(flow);
                           }}
                         >
-                          <DeleteOutlineIcon style={{ color: "#ededed" }} />
+                          <DeleteOutlineIcon style={{ color: "#333" }} />
                         </IconButton>
                       )}
                     />

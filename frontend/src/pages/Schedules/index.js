@@ -111,29 +111,53 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
   calendarToolbar: {
-    '& .rbc-toolbar-label': {
-      color: theme.mode === "light" ? theme.palette.light : "white",
+    '& .rbc-toolbar': {
+      marginBottom: theme.spacing(2),
+      '& .rbc-toolbar-label': {
+        fontWeight: 800,
+        fontSize: '1.2rem',
+        color: '#111',
+      },
+      '& .rbc-btn-group': {
+        '& button': {
+          borderRadius: '8px',
+          margin: '0 4px',
+          border: '1px solid rgba(0,0,0,0.05)',
+          background: 'rgba(255,255,255,0.5)',
+          fontWeight: 700,
+          '&:hover': {
+            background: 'rgba(0,0,0,0.02)',
+          },
+          '&.rbc-active': {
+            background: 'linear-gradient(135deg, #00b4db 0%, #045de9 100%)',
+            color: '#fff',
+            border: 'none',
+          }
+        }
+      }
     },
-    '& .rbc-btn-group button': {
-      color: theme.mode === "light" ? theme.palette.light : "white",
-      '&:hover': {
-        color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-      },
-      '&:active': {
-        color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-      },
-      '&:focus': {
-        color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-      },
-      '&.rbc-active': {
-        color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-      },
+    '& .rbc-month-view': {
+      borderRadius: '16px',
+      overflow: 'hidden',
+      border: '1px solid rgba(0,0,0,0.05)',
     },
+    '& .rbc-header': {
+      padding: '12px',
+      fontWeight: 800,
+      textTransform: 'uppercase',
+      fontSize: '0.75rem',
+      color: '#888',
+    }
   },
 }));
 
@@ -335,8 +359,15 @@ const Schedules = () => {
           />
           <Button
             variant="contained"
-            color="primary"
             onClick={handleOpenScheduleModal}
+            sx={{
+              background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: "12px",
+              padding: "10px 20px",
+              boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+            }}
           >
             {i18n.t("schedules.buttons.add")}
           </Button>

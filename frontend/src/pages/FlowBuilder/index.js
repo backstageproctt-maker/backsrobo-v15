@@ -108,11 +108,14 @@ const reducer = (state, action) => {
 const useStyles = makeStyles(theme => ({
   mainPaper: {
     flex: 1,
-    backgroundColor: colorBackgroundTable(),
-    borderRadius: 12,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
-    ...theme.scrollbarStyles
+    padding: theme.spacing(3),
+    overflowY: "auto",
+    ...theme.scrollbarStyles,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   }
 }));
 
@@ -333,10 +336,14 @@ const FlowBuilder = () => {
           <Button
             variant="contained"
             onClick={handleOpenContactModal}
-            style={{
+            sx={{
+              background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: "12px",
+              padding: "10px 20px",
+              boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
               textTransform: "none",
-              backgroundColor: theme.palette.primary.main,
-              color: "#fff"
             }}
           >
             <Stack direction={"row"} gap={1}>
@@ -352,14 +359,14 @@ const FlowBuilder = () => {
         onScroll={handleScroll}
       >
         <Stack>
-          <Grid container style={{ padding: "8px" }}>
-            <Grid item xs={4} style={{ color: colorTopTable() }}>
+          <Grid container style={{ padding: "16px", marginBottom: "8px" }}>
+            <Grid item xs={4} style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
               {i18n.t("contacts.table.name")}
             </Grid>
-            <Grid item xs={4} style={{ color: colorTopTable() }} align="center">
+            <Grid item xs={4} style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }} align="center">
               Status
             </Grid>
-            <Grid item xs={4} align="end" style={{ color: colorTopTable() }}>
+            <Grid item xs={4} align="end" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
               {i18n.t("contacts.table.actions")}
             </Grid>
           </Grid>
@@ -369,12 +376,17 @@ const FlowBuilder = () => {
                 container
                 key={contact.id}
                 sx={{
-                  padding: "8px",
-                  backgroundColor: theme.palette.primary.main,
-                  borderRadius: 2,
-                  marginTop: 0.5,
+                  padding: "16px",
+                  background: "rgba(255, 255, 255, 0.5)",
+                  borderRadius: "16px",
+                  marginTop: 1.5,
+                  border: "1px solid rgba(0,0,0,0.05)",
+                  transition: "all 0.3s ease",
+                  cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: theme.palette.primary.dark,
+                    background: "rgba(255, 255, 255, 0.9)",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
                   }
                 }}
               >
@@ -382,7 +394,7 @@ const FlowBuilder = () => {
                   <Stack
                     justifyContent={"center"}
                     height={"100%"}
-                    style={{ color: "#ededed" }}
+                    style={{ color: "#333", fontWeight: 700 }}
                   >
                     <Stack direction={"row"}>
                       <DevicesFold />
@@ -392,8 +404,9 @@ const FlowBuilder = () => {
                     </Stack>
                   </Stack>
                 </Grid>
-                <Grid item xs={4} align="center" style={{ color: "#ededed" }}  onClick={() => history.push(`/flowbuilder/${contact.id}`)}>
-                  <Stack justifyContent={"center"} height={"100%"}>
+                <Grid item xs={4} align="center" style={{ color: "#666" }}  onClick={() => history.push(`/flowbuilder/${contact.id}`)}>
+                  <Stack justifyContent={"center"} height={"100%"} direction="row" alignItems="center" gap={1}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: contact.active ? "#25d366" : "#ff4d4d" }} />
                     {contact.active ? "Ativo" : "Desativado"}
                   </Stack>
                 </Grid>
@@ -410,7 +423,7 @@ const FlowBuilder = () => {
                     sx={{ borderRadius: "36px", minWidth: "24px" }}
                   >
                     <MoreVert
-                      sx={{ color: "#ededed", width: "21px", height: "21px" }}
+                      sx={{ color: "#333", width: "21px", height: "21px" }}
                     />
                   </Button>
                   {/* <IconButton

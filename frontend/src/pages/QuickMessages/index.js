@@ -89,9 +89,14 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
+    padding: theme.spacing(3),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
 }));
 
@@ -258,7 +263,14 @@ const Quickemessages = () => {
                   fullWidth
                   variant="contained"
                   onClick={handleOpenQuickMessageDialog}
-                  color="primary"
+                  sx={{
+                    background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                    color: "#fff",
+                    fontWeight: 700,
+                    borderRadius: "12px",
+                    padding: "10px 20px",
+                    boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                  }}
                 >
                   {i18n.t("quickMessages.buttons.add")}
                 </Button>
@@ -275,17 +287,17 @@ const Quickemessages = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell align="center">
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                 {i18n.t("quickMessages.table.shortcode")}
               </TableCell>
 
-              <TableCell align="center">
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                 {i18n.t("quickMessages.table.mediaName")}
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                 {i18n.t("quickMessages.table.status")}
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>
                 {i18n.t("quickMessages.table.actions")}
               </TableCell>
             </TableRow>

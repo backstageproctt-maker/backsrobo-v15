@@ -15,6 +15,7 @@ import { CircularProgress } from "@material-ui/core";
 import { getBackendUrl } from "../../config";
 import logo from "../../assets/logo.png";
 import logoDark from "../../assets/logo-black.png";
+import MainContainer from "../../components/MainContainer";
 
 const defaultTicketsManagerWidth = 550;
 const minTicketsManagerWidth = 404;
@@ -23,13 +24,14 @@ const maxTicketsManagerWidth = 700;
 const useStyles = makeStyles((theme) => ({
 	chatContainer: {
 		flex: 1,
-		padding: "2px",
-		height: `calc(100% - 48px)`,
-		overflowY: "hidden",
+		padding: "4px",
+		height: "100%",
+		overflow: "hidden",
 	},
 	chatPapper: {
 		display: "flex",
 		height: "100%",
+    gap: "10px",
 	},
 	contactsWrapper: {
 		display: "flex",
@@ -37,33 +39,47 @@ const useStyles = makeStyles((theme) => ({
 		flexDirection: "column",
 		overflowY: "hidden",
 		position: "relative",
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
 	},
 	messagesWrapper: {
 		display: "flex",
 		height: "100%",
 		flexDirection: "column",
 		flexGrow: 1,
+    borderRadius: "24px",
+    overflow: "hidden",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
 	},
 	welcomeMsg: {
-		background: theme.palette.tabHeaderBackground,
+		background: "transparent",
 		display: "flex",
 		justifyContent: "space-evenly",
 		alignItems: "center",
 		height: "100%",
 		textAlign: "center",
+    border: "none !important",
 	},
 	dragger: {
-		width: "5px",
+		width: "4px",
 		cursor: "ew-resize",
-		padding: "4px 0 0",
-		borderTop: "1px solid #ddd",
 		position: "absolute",
 		top: 0,
 		right: 0,
 		bottom: 0,
 		zIndex: 100,
-		backgroundColor: "#f4f7f9",
-		userSelect: "none", // Evita a seleção de texto no elemento de redimensionamento
+		backgroundColor: "rgba(0,0,0,0.05)",
+    transition: "background 0.3s ease",
+    "&:hover": {
+      backgroundColor: "rgba(0,180,219,0.5)",
+    },
+		userSelect: "none",
 	},
 	logo: {
 		logo: theme.logo,
@@ -86,12 +102,6 @@ const TicketsCustom = () => {
 			setTicketsManagerWidth(user.defaultTicketsManagerWidth);
 		}
 	}, [user]);
-
-	// useEffect(() => {
-	// 	if (ticketId && currentTicket.uuid === undefined) {
-	// 		history.push("/tickets");
-	// 	}
-	// }, [ticketId, currentTicket.uuid, history]);
 
 	const handleMouseDown = (e) => {
 		document.addEventListener("mouseup", handleMouseUp, true);
@@ -129,38 +139,38 @@ const TicketsCustom = () => {
 	};
 
 	return (
-		<QueueSelectedProvider>
-			<div className={classes.chatContainer}>
-				<div className={classes.chatPapper}>
-					<div
-						className={classes.contactsWrapper}
-						style={{ width: ticketsManagerWidth }}
-					>
-						<TicketsManager />
-						<div onMouseDown={e => handleMouseDown(e)} className={classes.dragger} />
-					</div>
-					<div className={classes.messagesWrapper}>
-						{ticketId ? (
-							<>
-								{/* <Suspense fallback={<CircularProgress />}> */}
-								<Ticket />
-								{/* </Suspense> */}
-							</>
-						) : (
-							<Hidden only={["sm", "xs"]}>
-								<Paper square variant="outlined" className={classes.welcomeMsg}>
-									<span>
-										<center>
-											<img className={classes.logo} width="50%" alt="" />
-										</center>
-										{i18n.t("chat.noTicketMessage")}
-									</span>								</Paper>
-							</Hidden>
-						)}
-					</div>
-				</div>
-			</div>
-		</QueueSelectedProvider>
+    <MainContainer>
+      <QueueSelectedProvider>
+        <div className={classes.chatContainer}>
+          <div className={classes.chatPapper}>
+            <div
+              className={classes.contactsWrapper}
+              style={{ width: ticketsManagerWidth }}
+            >
+              <TicketsManager />
+              <div onMouseDown={e => handleMouseDown(e)} className={classes.dragger} />
+            </div>
+            <div className={classes.messagesWrapper}>
+              {ticketId ? (
+                <>
+                  <Ticket />
+                </>
+              ) : (
+                <Hidden only={["sm", "xs"]}>
+                  <Paper square variant="outlined" className={classes.welcomeMsg}>
+                    <span>
+                      <center>
+                        <img className={classes.logo} width="50%" alt="" />
+                      </center>
+                      {i18n.t("chat.noTicketMessage")}
+                    </span>								</Paper>
+                </Hidden>
+              )}
+            </div>
+          </div>
+        </div>
+      </QueueSelectedProvider>
+    </MainContainer>
 	);
 };
 

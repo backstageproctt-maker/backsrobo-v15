@@ -45,14 +45,16 @@ import { Field } from "formik";
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
-    background: theme.palette.fancyBackground,
-
+    padding: theme.spacing(3),
   },
   formControl: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "12px",
+    }
   },
   mainPaper: {
     flex: 1,
@@ -67,12 +69,21 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
     height: '68vh',
     ...theme.scrollbarStylesSoftBig,
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
   },
   mainPaperFilter: {
     flex: 1,
-    overflow: 'auto',
-    height: '20vh',
-    ...theme.scrollbarStylesSoftBig,
+    padding: theme.spacing(2),
+    borderRadius: "24px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
+    marginBottom: theme.spacing(2),
   },
   mainHeaderBlock: {
     [theme.breakpoints.down('md')]: {
@@ -438,9 +449,16 @@ const Reports = () => {
               </IconButton>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={() => handleFilter(pageNumber)}
-                size="small"
+                sx={{
+                  background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                  color: "#fff",
+                  fontWeight: 700,
+                  borderRadius: "12px",
+                  padding: "10px 20px",
+                  boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                  height: "40px",
+                }}
               >{i18n.t("reports.buttons.filter")}</Button>
             </Grid>
           </Grid>
@@ -456,18 +474,18 @@ const Reports = () => {
           <TableHead>
             <TableRow>
               {/* <TableCell padding="checkbox" /> */}
-              <TableCell align="center">{i18n.t("reports.table.id")}</TableCell>
-              <TableCell align="left">{i18n.t("reports.table.whatsapp")}</TableCell>
-              <TableCell align="left">{i18n.t("reports.table.contact")}</TableCell>
-              <TableCell align="left">{i18n.t("reports.table.user")}</TableCell>
-              <TableCell align="left">{i18n.t("reports.table.queue")}</TableCell>
-              <TableCell align="center">{i18n.t("reports.table.status")}</TableCell>
-              <TableCell align="left">{i18n.t("reports.table.lastMessage")}</TableCell>
-              <TableCell align="center">{i18n.t("reports.table.dateOpen")}</TableCell>
-              <TableCell align="center">{i18n.t("reports.table.dateClose")}</TableCell>
-              <TableCell align="center">{i18n.t("reports.table.supportTime")}</TableCell>
-              <TableCell align="center">{i18n.t("reports.table.NPS")}</TableCell>
-              <TableCell align="center">{i18n.t("reports.table.actions")}</TableCell>
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.id")}</TableCell>
+              <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.whatsapp")}</TableCell>
+              <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.contact")}</TableCell>
+              <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.user")}</TableCell>
+              <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.queue")}</TableCell>
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.status")}</TableCell>
+              <TableCell align="left" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.lastMessage")}</TableCell>
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.dateOpen")}</TableCell>
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.dateClose")}</TableCell>
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.supportTime")}</TableCell>
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.NPS")}</TableCell>
+              <TableCell align="center" style={{ fontWeight: 800, textTransform: "uppercase", fontSize: "0.75rem", color: "#888" }}>{i18n.t("reports.table.actions")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
