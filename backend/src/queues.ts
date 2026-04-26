@@ -960,6 +960,12 @@ async function handleDispatchCampaign(job) {
 
       ticket = await ShowTicketService(ticket.id, campaign.companyId);
 
+      if (campaign.tagListId) {
+        await TicketTag.findOrCreate({
+          where: { ticketId: ticket.id, tagId: campaign.tagListId }
+        });
+      }
+
       if (whatsapp.status === "CONNECTED") {
         if (campaign.confirmation && campaignShipping.confirmation === null) {
           const confirmationMessage = await wbot.sendMessage(chatId, {
