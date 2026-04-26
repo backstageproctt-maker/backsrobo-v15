@@ -76,7 +76,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError(err.message);
   }
 
-  if (typeof data.tagListId === 'number') {
+  if (typeof data.tagListId === 'number' && !data.contactListId) {
 
     const tagId = data.tagListId;
     const campanhaNome = data.name;
