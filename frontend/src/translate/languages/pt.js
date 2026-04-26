@@ -697,7 +697,7 @@ const messages = {
         form: {
           name: "Nome",
           color: "Cor",
-          timeLane: "Tempo em horas para redirecionar para lane",
+          timeLane: "Tempo em segundos para redirecionar para lane",
           nextLaneId: "Lane",
           greetingMessageLane: "Mensagem de saudação da lane",
           rollbackLaneId: "Voltar para Lane após retomar atendimento"

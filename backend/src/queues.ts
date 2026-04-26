@@ -1829,8 +1829,8 @@ async function handleProcessLanes() {
               const nextTag = await Tag.findByPk(t?.tag.nextLaneId);
 
               const dataLimite = new Date();
-              dataLimite.setHours(
-                dataLimite.getHours() - Number(t.tag.timeLane)
+              dataLimite.setSeconds(
+                dataLimite.getSeconds() - Number(t.tag.timeLane)
               );
               const dataUltimaInteracaoChamado = new Date(
                 t.ticket.updatedAt
