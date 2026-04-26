@@ -1,11 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 
-import Grid from "@material-ui/core/Grid";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import FormHelperText from "@material-ui/core/FormHelperText";
+import { Grid, MenuItem, FormControl, InputLabel, Select, FormHelperText, CircularProgress } from "@material-ui/core";
 
 import useSettings from "../../hooks/useSettings";
 
@@ -537,11 +532,20 @@ export default function Options(props) {
     setLoadingDirectTicketsToWallets(false);
   }
 
+  // REGRA DE OURO: Se não carregou as configurações ainda, não mostra nada para não pular
+  if (!settings || Object.keys(settings).length === 0) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
+        <CircularProgress style={{ color: "#006B76" }} />
+      </div>
+    );
+  }
+
   return (
     <>
       <Grid spacing={3} container>
         {/* CRIAÇÃO DE COMPANY/USERS */}
-        {isSuper() ? (
+        {user.super ? (
           <Grid xs={12} sm={6} md={4} item>
             <FormControl className={classes.selectContainer}>
               <InputLabel id="UserCreation-label">
