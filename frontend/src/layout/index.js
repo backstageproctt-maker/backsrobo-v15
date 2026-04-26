@@ -392,6 +392,8 @@ const LoggedInLayout = ({ children }) => {
           paper: clsx(classes.drawerPaper, !drawerOpen && classes.drawerPaperClose),
         }}
         open={drawerOpen}
+        onMouseEnter={() => !greaterThenSm ? null : setDrawerOpen(true)}
+        onMouseLeave={() => !greaterThenSm ? null : setDrawerOpen(false)}
       >
         <div className={classes.toolbarIcon}>
           {/* Logo visível no Drawer */}
