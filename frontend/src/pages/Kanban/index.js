@@ -21,8 +21,13 @@ import {
   InfoOutlined, 
   PlayArrow, 
   Check, 
-  ChatBubbleOutline 
+  ChatBubbleOutline,
+  AssignmentOutlined,
+  InboxOutlined,
+  TrendingUpOutlined,
+  DoneAllOutlined
 } from "@material-ui/icons";
+
 import { format, isSameDay, parseISO } from "date-fns";
 import { Can } from "../../components/Can";
 import MainContainer from "../../components/MainContainer";
@@ -179,32 +184,52 @@ const CustomCard = ({
 
 // CUSTOM LANE HEADER
 const CustomLaneHeader = ({ title, label, color }) => {
+  const getHeaderIcon = (name) => {
+    const n = name.toLowerCase();
+    if (n.includes("aberto") || n.includes("default") || n.includes("pendente")) return <InboxOutlined style={{ fontSize: 18, color: "#777" }} />;
+    if (n.includes("lead")) return <TrendingUpOutlined style={{ fontSize: 18, color: "#777" }} />;
+    if (n.includes("concluido") || n.includes("finalizado") || n.includes("respondeu")) return <DoneAllOutlined style={{ fontSize: 18, color: "#777" }} />;
+    return <AssignmentOutlined style={{ fontSize: 18, color: "#777" }} />;
+  };
+
   return (
     <Box 
       display="flex" 
       justifyContent="space-between" 
       alignItems="center" 
-      padding="6px 10px"
-      mb={0.5}
+      padding="10px 12px"
+      mb={1}
+      sx={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}
     >
-      <Box display="flex" alignItems="center" gap={0.8}>
+      <Box display="flex" alignItems="center" gap={1}>
         <Box 
           sx={{ 
-            width: 6, 
-            height: 6, 
+            width: 8, 
+            height: 8, 
             borderRadius: "50%", 
-            backgroundColor: color || "#00b4db" 
+            backgroundColor: color || "#00b4db",
+            flexShrink: 0
           }} 
         />
-        <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#555", fontSize: "0.8rem" }}>
+        {getHeaderIcon(title)}
+        <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#444", fontSize: "0.85rem", whiteSpace: "nowrap" }}>
           {title}
         </Typography>
-        <Typography variant="caption" style={{ color: "#bbb", fontWeight: 700, fontSize: "0.7rem" }}>
-          ({label})
-        </Typography>
+        <Box 
+          sx={{ 
+            background: "rgba(0,0,0,0.05)", 
+            padding: "1px 6px", 
+            borderRadius: "10px",
+            fontSize: "0.7rem",
+            color: "#888",
+            fontWeight: 700
+          }}
+        >
+          {label}
+        </Box>
       </Box>
-      <IconButton size="small" style={{ padding: 4 }}>
-        <InfoOutlined style={{ fontSize: 16, color: "#ddd" }} />
+      <IconButton size="small" style={{ padding: 2 }}>
+        <InfoOutlined style={{ fontSize: 16, color: "#ccc" }} />
       </IconButton>
     </Box>
   );
