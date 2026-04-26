@@ -116,12 +116,20 @@ const App = () => {
                 borderRadius: "12px",
                 padding: "8px 16px",
                 fontWeight: 700,
+                textTransform: "none",
+              },
+              containedPrimary: {
+                background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                color: "#fff",
+                boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                  boxShadow: "0 10px 25px rgba(0, 180, 219, 0.3)",
+                  transform: "translateY(-1px)",
+                },
               },
               contained: {
                 boxShadow: "none",
-                "&:hover": {
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                },
               },
             },
             MuiIconButton: {
