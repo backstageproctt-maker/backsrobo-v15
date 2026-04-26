@@ -143,13 +143,15 @@ const resolveImageUrl = (value, fallback) => {
 const Login = () => {
   const classes = useStyles();
   const theme = useTheme();
-  const { handleLogin } = useContext(AuthContext);
+  const { handleLogin, loading } = useContext(AuthContext);
 
   const [user, setUser] = useState({
     email: "",
     password: "",
     remember: false,
   });
+
+  if (loading) return null; // Não mostra nada enquanto estiver pensando
 
   const [branding, setBranding] = useState({
     loginLogo: "/logo.png",
