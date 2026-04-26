@@ -109,8 +109,7 @@ const CampaignModal = ({
     confirmation: false,
     scheduledAt: "",
     contactListId: "",
-    tagListId: "Nenhuma",
-    laneId: "",
+    tagListId: "",
     companyId,
     statusTicket: "closed",
     openTicket: "disabled",
@@ -568,9 +567,9 @@ useEffect(() => {
                         as={Select}
                         label="Lane"
                         placeholder="Lane"
-                        labelId="laneId-selection-label"
-                        id="laneId"
-                        name="laneId"
+                        labelId="tagListId-selection-label"
+                        id="tagListId"
+                        name="tagListId"
                         disabled={!campaignEditable}
                       >
                         <MenuItem value="">Nenhuma</MenuItem>
