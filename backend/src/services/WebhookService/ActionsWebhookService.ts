@@ -641,6 +641,54 @@ export const ActionsWebhookService = async (
             }
           }
           // ---------- FIM DO BLOCO ADICIONADO PARA TAGS ----------
+
+          // ---------- INÍCIO DO BLOCO ADICIONADO PARA LANES (KANBAN) ----------
+          if (elementNowSelected.includes("lane")) {
+            const tagId = nodeSelected.data.elements.filter(
+              item => item.number === elementNowSelected
+            )[0].value;
+
+            try {
+              const TicketTag = require("../../models/TicketTag").default;
+              const Tag = require("../../models/Tag").default;
+              
+              // 1. Localiza todas as tags atuais do ticket que são lanes de Kanban (kanban: 1)
+              const ticketTags = await TicketTag.findAll({ where: { ticketId: ticket.id } });
+              const currentTagIds = ticketTags.map((tt) => tt.tagId);
+
+              const kanbanTags = await Tag.findAll({
+                where: {
+                  id: currentTagIds,
+                  kanban: 1,
+                },
+              });
+
+              // 2. Remove as lanes atuais
+              const kanbanTagIds = kanbanTags.map((t) => t.id);
+              if (kanbanTagIds.length > 0) {
+                await TicketTag.destroy({ where: { ticketId: ticket.id, tagId: kanbanTagIds } });
+              }
+
+              // 3. Adiciona a nova lane
+              await TicketTag.create({ ticketId: ticket.id, tagId });
+              
+              // 4. Emite evento via socket para atualizar o frontend (Kanban e Atendimentos)
+              const ShowTicketService = require("../TicketServices/ShowTicketService").default;
+              const { getIO } = require("../../libs/socket");
+              
+              const updatedTicket = await ShowTicketService(ticket.id, ticket.companyId);
+              const io = getIO();
+              io.of(String(ticket.companyId)).emit(`company-${ticket.companyId}-ticket`, {
+                action: "update",
+                ticket: updatedTicket
+              });
+
+              console.log(`Ticket ${ticket.id} movido para lane ${tagId} via Flowbuilder`);
+            } catch (err) {
+              console.log("Erro ao trocar de lane pelo flowbuilder", err);
+            }
+          }
+          // ---------- FIM DO BLOCO ADICIONADO PARA LANES ----------
         }
       }
 

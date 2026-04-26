@@ -39,6 +39,7 @@ import {
 } from "@mui/icons-material";
 import { capitalize } from "../../utils/capitalize";
 import { Box, Divider } from "@material-ui/core";
+import { ViewWeek } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -184,6 +185,10 @@ const FlowBuilderSingleBlockModal = ({
   const [numberTag, setNumberTag] = useState(0);
   const [numberTagLast, setNumberTagLast] = useState(0);
 
+  const [numberLane, setNumberLane] = useState(0);
+  const [numberLaneLast, setNumberLaneLast] = useState(0);
+  const [systemLanes, setSystemLanes] = useState([]);
+
   const [labels, setLabels] = useState({
     title: "Adicionar conteúdo ao fluxo",
     btn: "Adicionar",
@@ -199,6 +204,7 @@ const FlowBuilderSingleBlockModal = ({
     const newArrVideo = elementsSeq.filter((item) => item.includes("video"));
     const newArrDocument = elementsSeq.filter((item) => item.includes("document"));
     const newArrTag = elementsSeq.filter((item) => item.includes("tag"));
+    const newArrLane = elementsSeq.filter((item) => item.includes("lane"));
 
     for (let i = 0; i < numberMessages; i++) {
       const value = document.querySelector(`.${newArrMessage[i]}`).querySelector(".MuiInputBase-input").value;
@@ -290,6 +296,20 @@ const FlowBuilderSingleBlockModal = ({
       });
     }
 
+    for (let i = 0; i < numberLane; i++) {
+      const value = document.querySelector(`.${newArrLane[i]}`).querySelector(".MuiInputBase-input").value;
+      if (!value) {
+        toast.error("Lane não selecionada!");
+        setLoading(false);
+        throw "";
+      }
+      elementsSequence.push({
+        type: "lane",
+        value: value,
+        number: newArrLane[i],
+      });
+    }
+
     return elementsSequence;
   };
 
@@ -375,6 +395,12 @@ const FlowBuilderSingleBlockModal = ({
       setElementsSeq((old) => old.filter((item) => item !== `tag${id}`));
       setElementsSeqEdit((old) => old.filter((item) => item !== `tag${id}`));
       document.querySelector(`.stackTag${id}`).remove();
+    }
+    if (type === "lane") {
+      setNumberLane((old) => old - 1);
+      setElementsSeq((old) => old.filter((item) => item !== `lane${id}`));
+      setElementsSeqEdit((old) => old.filter((item) => item !== `lane${id}`));
+      document.querySelector(`.stackLane${id}`).remove();
     }
   };
   
@@ -498,8 +524,21 @@ const FlowBuilderSingleBlockModal = ({
       <Typography textAlign={"center"}>Adicionar Tag</Typography>
       <TextField select label={"Selecione a Tag"} SelectProps={{ native: true }} className={`tag${number}`} defaultValue={valueDefault} variant="outlined" margin="dense" style={{ width: "100%" }}>
         <option value="" disabled>Selecione uma tag...</option>
-        {systemTags.map((tag) => (
+        {systemTags.filter(t => !t.kanban).map((tag) => (
           <option key={tag.id} value={tag.id}>{tag.name}</option>
+        ))}
+      </TextField>
+    </Stack>
+  );
+
+  const laneLayout = (number, valueDefault = "") => (
+    <Stack sx={{ border: "1px solid #FF5722", borderRadius: "7px", padding: "6px", position: "relative" }} className={`stackLane${number}`} key={`stackLane${number}`}>
+      <Stack sx={{ position: "absolute", right: 6 }}><Delete onClick={() => deleteElementsTypeOne(number, "lane")} /></Stack>
+      <Typography textAlign={"center"}>Mover para Lane (Kanban)</Typography>
+      <TextField select label={"Selecione a Lane"} SelectProps={{ native: true }} className={`lane${number}`} defaultValue={valueDefault} variant="outlined" margin="dense" style={{ width: "100%" }}>
+        <option value="" disabled>Selecione uma lane...</option>
+        {systemLanes.map((lane) => (
+          <option key={lane.id} value={lane.id}>{lane.name}</option>
         ))}
       </TextField>
     </Stack>
@@ -520,7 +559,9 @@ const FlowBuilderSingleBlockModal = ({
     const fetchTags = async () => {
       try {
         const { data } = await api.get("/tags");
-        setSystemTags(data.tags || data);
+        const allTags = data.tags || data;
+        setSystemTags(allTags);
+        setSystemLanes(allTags.filter(tag => tag.kanban > 0));
       } catch (err) {
         console.log(err);
       }
@@ -607,6 +648,16 @@ const FlowBuilderSingleBlockModal = ({
               return old + 1;
             });
           }
+          if (itemNode.type === "lane") {
+            const numberLoc = parseInt(item.replace("lane", ""));
+            setElements((elm) => [...elm, laneLayout(numberLoc, itemNode.value)]);
+            setNumberLane((old) => {
+              const arsOnly = sequence.filter((item) => item.includes("lane"));
+              const arrNumberMax = arsOnly.map((item) => parseInt(item.replace("lane", "")));
+              setNumberLaneLast(Math.max.apply(null, arrNumberMax) + 1);
+              return old + 1;
+            });
+          }
         });
       }
       setActiveModal(true);
@@ -649,6 +700,8 @@ const FlowBuilderSingleBlockModal = ({
       setNumberDocumentLast(0);
       setNumberTag(0);
       setNumberTagLast(0);
+      setNumberLane(0);
+      setNumberLaneLast(0);
       setPreviewDocuments([]);
     }, 500);
   };
@@ -715,7 +768,7 @@ const FlowBuilderSingleBlockModal = ({
         }
       });
       setTimeout(async () => {
-        if ((numberAudio === 0 && numberVideo === 0 && numberImg === 0 && numberDocument === 0 && numberTag === 0) || medias.length === 0) {
+        if ((numberAudio === 0 && numberVideo === 0 && numberImg === 0 && numberDocument === 0 && numberTag === 0 && numberLane === 0) || medias.length === 0) {
           try {
             const mountData = { seq: elementsSeq, elements: handleElements(null) };
             onUpdate({ ...data, data: mountData });
@@ -996,6 +1049,15 @@ const normalizeVariables = (raw) => {
                   setNumberTagLast((old) => old + 1);
                   setTimeout(() => { scrollToBottom(".body-card"); }, 100);
               }}><LocalOffer sx={{ width: "16px", height: "16px", marginRight: "4px" }} />Tag</Button>
+              <Button variant="contained" color="primary" onClick={() => {
+                  setElements((old) => [...old, laneLayout(numberLaneLast)]);
+                  setNumberLane((old) => {
+                    setElementsSeq((oldEleme) => [...oldEleme, `lane${numberLaneLast}`]);
+                    return old + 1;
+                  });
+                  setNumberLaneLast((old) => old + 1);
+                  setTimeout(() => { scrollToBottom(".body-card"); }, 100);
+              }}><ViewWeek sx={{ width: "16px", height: "16px", marginRight: "4px" }} />Lane</Button>
             </Stack>
             <Divider />
             <Box
