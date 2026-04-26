@@ -118,7 +118,7 @@ const App = () => {
                 fontWeight: 700,
                 textTransform: "none",
               },
-              containedPrimary: {
+              contained: {
                 background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
                 color: "#fff",
                 boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
@@ -128,8 +128,9 @@ const App = () => {
                   transform: "translateY(-1px)",
                 },
               },
-              contained: {
-                boxShadow: "none",
+              containedPrimary: {
+                background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
+                color: "#fff",
               },
             },
             MuiIconButton: {
