@@ -43,6 +43,19 @@ const useStyles = makeStyles(theme => ({
     minHeight: "calc(100vh - 150px)",
     borderRadius: "24px",
     marginTop: theme.spacing(2),
+    overflowX: "auto",
+    display: "flex",
+    flexDirection: "column",
+    "&::-webkit-scrollbar": {
+      height: "8px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "rgba(0, 180, 219, 0.2)",
+      borderRadius: "10px",
+    },
+    "&::-webkit-scrollbar-track": {
+      background: "rgba(0,0,0,0.02)",
+    }
   },
   dateInput: {
     marginRight: theme.spacing(1),
@@ -68,73 +81,74 @@ const CustomCard = ({
     <Box
       sx={{
         background: "#fff",
-        borderRadius: "12px",
-        padding: "14px",
-        marginBottom: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-        borderLeft: `5px solid ${ticket.tagColor || "#ccc"}`,
+        borderRadius: "10px",
+        padding: "10px",
+        marginBottom: "8px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        borderLeft: `4px solid ${ticket.tagColor || "#ccc"}`,
         position: "relative",
         cursor: "pointer",
         transition: "all 0.2s ease",
         "&:hover": {
-          transform: "translateY(-3px)",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+          transform: "translateY(-2px)",
+          boxShadow: "0 6px 15px rgba(0,0,0,0.08)",
         }
       }}
       onClick={() => handleCardClick(ticket.uuid)}
     >
-      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
-        <Box>
-           <Box display="flex" alignItems="center" gap={1} mb={0.5}>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={0.5}>
+        <Box sx={{ maxWidth: "80%" }}>
+           <Box display="flex" alignItems="center" gap={0.5} mb={0.2}>
              {IconChannel(ticket.channel)}
-             <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#333" }}>
+             <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#333", fontSize: "0.75rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                {ticket.contact.name}
              </Typography>
            </Box>
-           <Typography variant="caption" style={{ color: "#888", display: "block" }}>
+           <Typography variant="caption" style={{ color: "#aaa", fontSize: "0.65rem" }}>
              Ticket nº {ticket.id}
            </Typography>
         </Box>
         <Avatar 
           src={ticket.contact.urlPicture} 
-          style={{ width: 32, height: 32, borderRadius: "8px" }}
+          style={{ width: 24, height: 24, borderRadius: "6px" }}
         />
       </Box>
 
       <Typography 
         variant="body2" 
         style={{ 
-          color: "#666", 
-          marginBottom: "12px",
+          color: "#777", 
+          marginBottom: "8px",
           display: "-webkit-box",
-          WebkitLineClamp: 2,
+          WebkitLineClamp: 1,
           WebkitBoxOrient: "vertical",
           overflow: "hidden",
-          fontSize: "0.8rem"
+          fontSize: "0.7rem",
+          lineHeight: 1.2
         }}
       >
-        {ticket.lastMessage || "Sem mensagens recentes"}
+        {ticket.lastMessage || "Sem mensagens"}
       </Typography>
 
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box display="flex" gap={1}>
-          <PlayArrow style={{ fontSize: 16, color: "#bbb" }} />
-          <Check style={{ fontSize: 16, color: "#bbb" }} />
+        <Box display="flex" gap={0.5}>
+          <PlayArrow style={{ fontSize: 14, color: "#ccc" }} />
+          <Check style={{ fontSize: 14, color: "#ccc" }} />
           <Box display="flex" alignItems="center">
-            <ChatBubbleOutline style={{ fontSize: 16, color: "#bbb" }} />
+            <ChatBubbleOutline style={{ fontSize: 14, color: "#ccc" }} />
             {ticket.unreadMessages > 0 && (
               <Box 
                 sx={{ 
                   background: "#ff9800", 
                   color: "#fff", 
                   borderRadius: "50%", 
-                  width: 14, 
-                  height: 14, 
-                  fontSize: 8, 
+                  width: 12, 
+                  height: 12, 
+                  fontSize: 7, 
                   display: "flex", 
                   alignItems: "center", 
                   justifyContent: "center",
-                  ml: 0.5
+                  ml: 0.3
                 }}
               >
                 {ticket.unreadMessages}
@@ -146,9 +160,9 @@ const CustomCard = ({
           sx={{ 
             background: ticket.unreadMessages > 0 ? "#ff5252" : "#4caf50", 
             color: "#fff", 
-            padding: "2px 8px", 
-            borderRadius: "6px", 
-            fontSize: "0.7rem",
+            padding: "1px 6px", 
+            borderRadius: "4px", 
+            fontSize: "0.6rem",
             fontWeight: 800
           }}
         >
@@ -170,27 +184,27 @@ const CustomLaneHeader = ({ title, label, color }) => {
       display="flex" 
       justifyContent="space-between" 
       alignItems="center" 
-      padding="8px 12px"
-      mb={1}
+      padding="6px 10px"
+      mb={0.5}
     >
-      <Box display="flex" alignItems="center" gap={1}>
+      <Box display="flex" alignItems="center" gap={0.8}>
         <Box 
           sx={{ 
-            width: 8, 
-            height: 8, 
+            width: 6, 
+            height: 6, 
             borderRadius: "50%", 
             backgroundColor: color || "#00b4db" 
           }} 
         />
-        <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#444", fontSize: "0.9rem" }}>
+        <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#555", fontSize: "0.8rem" }}>
           {title}
         </Typography>
-        <Typography variant="caption" style={{ color: "#aaa", fontWeight: 700 }}>
+        <Typography variant="caption" style={{ color: "#bbb", fontWeight: 700, fontSize: "0.7rem" }}>
           ({label})
         </Typography>
       </Box>
-      <IconButton size="small">
-        <InfoOutlined style={{ fontSize: 18, color: "#ccc" }} />
+      <IconButton size="small" style={{ padding: 4 }}>
+        <InfoOutlined style={{ fontSize: 16, color: "#ddd" }} />
       </IconButton>
     </Box>
   );
@@ -271,13 +285,13 @@ const Kanban = () => {
   const IconChannel = (channel) => {
     switch (channel) {
       case "facebook":
-        return <Facebook style={{ color: "#3b5998", verticalAlign: "middle", fontSize: "16px" }} />;
+        return <Facebook style={{ color: "#3b5998", verticalAlign: "middle", fontSize: "14px" }} />;
       case "instagram":
-        return <Instagram style={{ color: "#e1306c", verticalAlign: "middle", fontSize: "16px" }} />;
+        return <Instagram style={{ color: "#e1306c", verticalAlign: "middle", fontSize: "14px" }} />;
       case "whatsapp":
-        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "16px" }} />
+        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "14px" }} />
       default:
-        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "16px" }} />;
+        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "14px" }} />;
     }
   };
 
@@ -396,13 +410,13 @@ const Kanban = () => {
         <Board
           data={file}
           onCardMoveAcrossLanes={handleCardMove}
-          style={{ backgroundColor: 'transparent', padding: "0" }}
+          style={{ backgroundColor: 'transparent', padding: "0", flex: 1 }}
           laneStyle={{ 
             background: 'rgba(0,0,0,0.03)', 
             borderRadius: "16px", 
             marginRight: "16px",
             maxHeight: "100%",
-            width: 320
+            width: 260
           }}
           customCardLayout
           components={{
