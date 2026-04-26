@@ -195,9 +195,9 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 	useEffect(() => {
 		const { companyId } = user;
 		if (open) {
-			try {
-				setLoadingData(true);
-				(async () => {
+			setLoadingData(true);
+			(async () => {
+				try {
 					const { data: contactList } = await api.get('/contacts/list', { params: { companyId: companyId } });
 					let customList = contactList.map((c) => ({ id: c.id, name: c.name, channel: c.channel }));
 					if (isArray(customList)) {
@@ -245,10 +245,11 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 					setCurrentContact(data.contact);
 					setLoadingData(false);
 				})()
-			} catch (err) {
-				setLoadingData(false);
-				toastError(err);
-			}
+				} catch (err) {
+					setLoadingData(false);
+					toastError(err);
+				}
+			})();
 		} else {
 			setLoadingData(false);
 		}
