@@ -4,6 +4,8 @@
  * api/get/1 configuração específica |
  * api/put/atualização de 1 configuração |
  */
+import { toast } from "react-toastify";
+import toastError from "../../errors/toastError";
 import api from "../../services/api";
 
 const useCompanySettings = () => {
@@ -27,12 +29,17 @@ const useCompanySettings = () => {
     } 
 
     const update = async (data) => {
-        const { data: responseData } = await api.request({
-            url: '/companySettings',
-            method: 'PUT',
-            data
-        });
-        return responseData;
+        try {
+            const { data: responseData } = await api.request({
+                url: '/companySettings',
+                method: 'PUT',
+                data
+            });
+            toast.success("Configuração atualizada com sucesso.");
+            return responseData;
+        } catch (err) {
+            toastError(err);
+        }
     }
 
     return {
