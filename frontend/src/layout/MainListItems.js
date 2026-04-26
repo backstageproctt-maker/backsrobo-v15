@@ -142,7 +142,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ListItemLink(props) {
-  const { icon, primary, to, tooltip, showBadge, iconKey, small } = props;
+  const { icon, primary, to, tooltip, showBadge, iconKey, small, collapsed } = props;
   const classes = useStyles();
   const { activeMenu } = useActiveMenu();
   const location = useLocation();
@@ -268,6 +268,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
   const { setActiveMenu } = useActiveMenu();
   const location = useLocation();
 
+  const [connectionWarning, setConnectionWarning] = useState(false);
   const [openCampaignSubmenu, setOpenCampaignSubmenu] = useState(false);
   const [openFlowSubmenu, setOpenFlowSubmenu] = useState(false);
   const [openOperationsSubmenu, setOpenOperationsSubmenu] = useState(false);
@@ -459,6 +460,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         icon={<DashboardOutlinedIcon />}
         iconKey="dashboard"
         tooltip={collapsed}
+        collapsed={collapsed}
       />
       
       <ListItemLink
@@ -467,6 +469,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         icon={<WhatsAppIcon />}
         iconKey="tickets"
         tooltip={collapsed}
+        collapsed={collapsed}
       />
 
       {/* OPERAÇÕES */}
@@ -503,6 +506,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               icon={<Schedule />}
               iconKey="schedules"
               tooltip={collapsed}
+              collapsed={collapsed}
             />
           )}
           {showInternalChat && (
@@ -513,6 +517,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               icon={<ForumIcon />}
               iconKey="chats"
               tooltip={collapsed}
+              collapsed={collapsed}
             />
           )}
           <ListItemLink
@@ -531,6 +536,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               icon={<ViewKanban />}
               iconKey="kanban"
               tooltip={collapsed}
+              collapsed={collapsed}
             />
           )}
           <ListItemLink
@@ -590,6 +596,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     icon={<ListIcon />}
                     iconKey="campaigns"
                     tooltip={collapsed}
+                    collapsed={collapsed}
                   />
                   <ListItemLink
                     small
@@ -598,6 +605,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     icon={<PeopleIcon />}
                     iconKey="campaigns"
                     tooltip={collapsed}
+                    collapsed={collapsed}
                   />
                   <ListItemLink
                     small
@@ -606,6 +614,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     icon={<SettingsOutlinedIcon />}
                     iconKey="campaigns"
                     tooltip={collapsed}
+                    collapsed={collapsed}
                   />
                 </List>
               </Collapse>
@@ -704,6 +713,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     icon={<CodeRoundedIcon />}
                     iconKey="api"
                     tooltip={collapsed}
+                    collapsed={collapsed}
                   />
                 )}
                 <ListItemLink
@@ -731,6 +741,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     icon={<DeviceHubOutlined />}
                     iconKey="integrations"
                     tooltip={collapsed}
+                    collapsed={collapsed}
                   />
                 )}
                 <ListItemLink
@@ -757,6 +768,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     icon={<AllInclusive />}
                     iconKey="prompts"
                     tooltip={collapsed}
+                    collapsed={collapsed}
                   />
                 )}
                 <ListItemLink
@@ -779,6 +791,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         icon={<LocalAtmIcon />}
         iconKey="financial"
         tooltip={collapsed}
+        collapsed={collapsed}
       />
       
       <ListItemLink
@@ -787,6 +800,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         icon={<SettingsOutlinedIcon />}
         iconKey="settings"
         tooltip={collapsed}
+        collapsed={collapsed}
       />
 
       {user.super && (
