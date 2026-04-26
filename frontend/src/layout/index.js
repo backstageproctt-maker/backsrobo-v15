@@ -77,8 +77,8 @@ const useStyles = makeStyles((theme) => ({
 
   toolbar: {
     paddingRight: 24,
-    color: theme.palette.dark.main,
-    background: theme.palette.barraSuperior,
+    color: "white",
+    background: "linear-gradient(90deg, #00b4db 0%, #045de9 100%)",
     gap: theme.spacing(1),
     overflow: "visible", // não corta o scroller
     [theme.breakpoints.down("sm")]: {
@@ -174,7 +174,7 @@ const useStyles = makeStyles((theme) => ({
     }),
     overflowX: "hidden",
     overflowY: "hidden",
-    background: "linear-gradient(180deg, #0076FF 0%, #0056D2 100%)",
+    background: "linear-gradient(180deg, #00b4db 0%, #045de9 100%)",
     borderRight: "none",
   },
   drawerPaperClose: {
@@ -186,7 +186,7 @@ const useStyles = makeStyles((theme) => ({
     }),
     width: theme.spacing(7),
     [theme.breakpoints.up("sm")]: { width: theme.spacing(9) },
-    background: "linear-gradient(180deg, #0076FF 0%, #0056D2 100%)",
+    background: "linear-gradient(180deg, #00b4db 0%, #045de9 100%)",
     borderRight: "none",
   },
 
