@@ -164,36 +164,41 @@ async function handleSendScheduledMessage(job) {
   let scheduleRecord: Schedule | null = null;
 
   try {
-    scheduleRecord = await Schedule.findByPk(schedule.id);
+    scheduleRecord = await Schedule.findByPk(schedule.id, {
+      include: [{ model: Contact, as: "contact" }]
+    });
   } catch (e) {
     Sentry.captureException(e);
     logger.info(`Erro ao tentar consultar agendamento: ${schedule.id}`);
+  if (!scheduleRecord) {
+    logger.error(`Agendamento ${schedule.id} não encontrado.`);
+    return;
   }
 
   try {
     let whatsapp;
 
-    if (!isNil(schedule.whatsappId)) {
-      whatsapp = await Whatsapp.findByPk(schedule.whatsappId);
+    if (!isNil(scheduleRecord.whatsappId)) {
+      whatsapp = await Whatsapp.findByPk(scheduleRecord.whatsappId);
     }
 
     if (!whatsapp)
-      whatsapp = await GetDefaultWhatsApp(schedule.companyId);
+      whatsapp = await GetDefaultWhatsApp(scheduleRecord.companyId);
 
     let filePath = null;
-    if (schedule.mediaPath) {
+    if (scheduleRecord.mediaPath) {
       filePath = path.resolve(
         "public",
-        `company${schedule.companyId}`,
-        schedule.mediaPath
+        `company${scheduleRecord.companyId}`,
+        scheduleRecord.mediaPath
       );
     }
 
-    if (schedule.openTicket === "enabled") {
+    if (scheduleRecord.openTicket === "enabled") {
       let ticket = await Ticket.findOne({
         where: {
-          contactId: schedule.contact.id,
-          companyId: schedule.companyId,
+          contactId: scheduleRecord.contact.id,
+          companyId: scheduleRecord.companyId,
           whatsappId: whatsapp.id,
           status: ["open", "pending"]
         }
@@ -201,36 +206,36 @@ async function handleSendScheduledMessage(job) {
 
       if (!ticket)
         ticket = await Ticket.create({
-          companyId: schedule.companyId,
-          contactId: schedule.contactId,
+          companyId: scheduleRecord.companyId,
+          contactId: scheduleRecord.contactId,
           whatsappId: whatsapp.id,
-          queueId: schedule.queueId,
-          userId: schedule.ticketUserId,
-          status: schedule.statusTicket
+          queueId: scheduleRecord.queueId,
+          userId: scheduleRecord.ticketUserId,
+          status: scheduleRecord.statusTicket
         });
 
-      ticket = await ShowTicketService(ticket.id, schedule.companyId);
+      ticket = await ShowTicketService(ticket.id, scheduleRecord.companyId);
 
       let bodyMessage;
 
       // @ts-ignore: Unreachable code error
-      if (schedule.assinar && !isNil(schedule.userId)) {
-        bodyMessage = `*${schedule?.user?.name}:*\n${schedule.body.trim()}`;
+      if (scheduleRecord.assinar && !isNil(scheduleRecord.userId)) {
+        bodyMessage = `*${scheduleRecord?.user?.name}:*\n${scheduleRecord.body.trim()}`;
       } else {
-        bodyMessage = schedule.body.trim();
+        bodyMessage = scheduleRecord.body.trim();
       }
       const sentMessage = await SendMessage(
         whatsapp,
         {
-          number: schedule.contact.number,
+          number: scheduleRecord.contact.number,
           body: `\u200e ${formatBody(bodyMessage, ticket)}`,
           mediaPath: filePath,
-          companyId: schedule.companyId
+          companyId: scheduleRecord.companyId
         },
-        schedule.contact.isGroup
+        scheduleRecord.contact.isGroup
       );
 
-      if (schedule.mediaPath) {
+      if (scheduleRecord.mediaPath) {
         await verifyMediaMessage(
           sentMessage,
           ticket,
@@ -247,12 +252,12 @@ async function handleSendScheduledMessage(job) {
       await SendMessage(
         whatsapp,
         {
-          number: schedule.contact.number,
-          body: `\u200e ${schedule.body}`,
+          number: scheduleRecord.contact.number,
+          body: `\u200e ${scheduleRecord.body}`,
           mediaPath: filePath,
-          companyId: schedule.companyId
+          companyId: scheduleRecord.companyId
         },
-        schedule.contact.isGroup
+        scheduleRecord.contact.isGroup
       );
     }
 
