@@ -211,20 +211,7 @@ const Dashboard = () => {
       color: "#00C853",
       gradient: "linear-gradient(135deg, #00C853 0%, #B2FF59 100%)"
     },
-    { 
-      title: i18n.t("dashboard.cards.groups"), 
-      value: counters.supportGroups || 0, 
-      icon: <Groups />, 
-      color: "#7C4DFF",
-      gradient: "linear-gradient(135deg, #7C4DFF 0%, #448AFF 100%)"
-    },
-    { 
-      title: i18n.t("dashboard.cards.activeAttendants"), 
-      value: `${getOnlineUsersCount()}/${attendants.length}`, 
-      icon: <RecordVoiceOverIcon />, 
-      color: "#F50057",
-      gradient: "linear-gradient(135deg, #F50057 0%, #FF4081 100%)"
-    },
+
     { 
       title: i18n.t("dashboard.cards.newContacts"), 
       value: counters.leads || 0, 
@@ -264,7 +251,7 @@ const Dashboard = () => {
 
         <Grid container spacing={3} sx={{ mb: 6 }}>
           {statCards.map((card, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
               <StatCard {...card} />
             </Grid>
           ))}
