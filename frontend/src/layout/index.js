@@ -59,17 +59,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       height: "calc(100vh - 56px)",
     },
-    backgroundColor: theme.palette.fancyBackground,
-    "& .MuiButton-outlinedPrimary": {
-      color: theme.palette.primary,
-      border:
-        theme.mode === "light"
-          ? "1px solid rgba(0 124 102)"
-          : "1px solid rgba(255, 255, 255, 0.5)",
-    },
-    "& .MuiTab-textColorPrimary.Mui-selected": {
-      color: theme.palette.primary,
-    },
+    backgroundColor: theme.palette.background.default,
   },
 
   chip: { background: "red", color: "white" },
@@ -77,22 +67,20 @@ const useStyles = makeStyles((theme) => ({
 
   toolbar: {
     paddingRight: 24,
-    color: theme.palette.dark.main,
-    background: theme.palette.barraSuperior,
+    color: "#FFFFFF",
+    background: theme.palette.primary.main,
     gap: theme.spacing(1),
-    overflow: "visible", // não corta o scroller
+    overflow: "visible",
     [theme.breakpoints.down("sm")]: {
       paddingRight: theme.spacing(1),
       paddingLeft: theme.spacing(1),
-      minHeight: 48,
+      minHeight: 56,
       gap: theme.spacing(0.5),
-      display: "flex",
-      alignItems: "center",
-      flexWrap: "nowrap",
     },
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
   },
 
-  // SCROLLER HORIZONTAL (ícones)
   topbarScroller: {
     display: "flex",
     alignItems: "center",
@@ -100,25 +88,10 @@ const useStyles = makeStyles((theme) => ({
     flex: "1 1 0%",
     minWidth: 0,
     maxWidth: "100%",
-    flexWrap: "nowrap",
-
-    // DESKTOP: alinhar à direita
     justifyContent: "flex-end",
-    overflowX: "visible",
-
-    // cada filho não encolhe => gera overflow quando somar mais que a largura
-    "& > *": { flex: "0 0 auto" },
-
-    // MOBILE: alinhar à esquerda + scroll horizontal invisível
     [theme.breakpoints.down("sm")]: {
       justifyContent: "flex-start",
       overflowX: "auto",
-      overflowY: "hidden",
-      WebkitOverflowScrolling: "touch",
-      touchAction: "pan-x",
-      overscrollBehaviorX: "contain",
-      msOverflowStyle: "none",
-      scrollbarWidth: "none",
       "&::-webkit-scrollbar": { display: "none" },
     },
   },
@@ -127,10 +100,8 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundSize: "cover",
     padding: "0 8px",
-    minHeight: "48px",
-    [theme.breakpoints.down("sm")]: { height: "48px" },
+    minHeight: "64px",
   },
 
   appBar: {
@@ -139,6 +110,9 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    boxShadow: "none",
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
+    background: "transparent !important",
   },
   appBarShift: {
     marginLeft: drawerWidth,
@@ -147,7 +121,6 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    // no mobile, não desloca a barra ao abrir o drawer temporário
     [theme.breakpoints.down("sm")]: {
       marginLeft: 0,
       width: "100%",
@@ -157,10 +130,11 @@ const useStyles = makeStyles((theme) => ({
   menuButtonHidden: { display: "none" },
 
   title: {
-    flexGrow: 0,
-    fontSize: 14,
-    color: "white",
-    marginLeft: theme.spacing(1),
+    flexGrow: 1,
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    color: "#FFFFFF",
+    marginLeft: theme.spacing(2),
     [theme.breakpoints.down("sm")]: { display: "none" },
   },
 
@@ -172,12 +146,10 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    overflowX: "hidden",
-    overflowY: "hidden",
+    border: "none",
+    boxShadow: "4px 0 24px rgba(15, 23, 42, 0.04)",
   },
   drawerPaperClose: {
-    overflowX: "hidden",
-    overflowY: "hidden",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -186,41 +158,41 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: { width: theme.spacing(9) },
   },
 
-  appBarSpacer: { minHeight: 48 },
-
-  content: { flex: 1, overflow: "visible", position: "relative" },
-
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-  },
+  appBarSpacer: { minHeight: 64 },
+  content: { flex: 1, overflow: "auto", position: "relative" },
 
   containerWithScroll: {
     flex: 1,
-    overflowY: "scroll",
+    overflowY: "auto",
     overflowX: "hidden",
-    ...theme.scrollbarStyles,
-    borderRadius: "8px",
-    border: "2px solid transparent",
-    "&::-webkit-scrollbar": { display: "none" },
-    "-ms-overflow-style": "none",
-    "scrollbar-width": "none",
+    padding: "8px 0",
+    "&::-webkit-scrollbar": { width: 4 },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "rgba(0,0,0,0.1)",
+      borderRadius: 10,
+    }
   },
 
   logoImg: {
-    width: "100%",
-    height: 45,
-    maxWidth: 180,
+    height: 40,
+    maxWidth: 160,
     objectFit: "contain",
   },
   hideLogo: { display: "none" },
 
   avatar2: {
-    width: theme.spacing(4),
-    height: theme.spacing(4),
+    width: 38,
+    height: 38,
     cursor: "pointer",
-    borderRadius: "50%",
-    border: "2px solid #ccc",
+    borderRadius: "12px",
+    border: "2px solid rgba(255,255,255,0.2)",
+    boxShadow: "0 0 15px rgba(255,255,255,0.1)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "&:hover": {
+      transform: "scale(1.1) rotate(2deg)",
+      borderColor: "white",
+      boxShadow: "0 0 20px rgba(255,255,255,0.3)",
+    }
   },
 
   compressIconButton: {

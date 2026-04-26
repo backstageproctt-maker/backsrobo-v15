@@ -64,55 +64,128 @@ const App = () => {
         {
           scrollbarStyles: {
             "&::-webkit-scrollbar": {
-              width: "8px",
-              height: "8px",
+              width: "6px",
+              height: "6px",
             },
             "&::-webkit-scrollbar-thumb": {
-              boxShadow: "inset 0 0 6px rgba(0, 0, 0, 0.3)",
-              backgroundColor: mode === "light" ? primaryColorLight : primaryColorDark,
-            },
-          },
-          scrollbarStylesSoft: {
-            "&::-webkit-scrollbar": {
-              width: "8px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: mode === "light" ? "#F3F3F3" : "#333333",
+              backgroundColor: mode === "light" ? "#cbd5e1" : "#475569",
+              borderRadius: "10px",
             },
           },
           palette: {
             type: mode,
-            primary: { main: mode === "light" ? primaryColorLight : primaryColorDark },
-            textPrimary: mode === "light" ? primaryColorLight : primaryColorDark,
-            borderPrimary: mode === "light" ? primaryColorLight : primaryColorDark,
-            dark: { main: mode === "light" ? "#333333" : "#F3F3F3" },
-            light: { main: mode === "light" ? "#F3F3F3" : "#333333" },
-            fontColor: mode === "light" ? primaryColorLight : primaryColorDark,
-            tabHeaderBackground: mode === "light" ? "#EEE" : "#666",
-            optionsBackground: mode === "light" ? "#fafafa" : "#333",
-            fancyBackground: mode === "light" ? "#fafafa" : "#333",
-            total: mode === "light" ? "#fff" : "#222",
-            messageIcons: mode === "light" ? "grey" : "#F3F3F3",
-            inputBackground: mode === "light" ? "#FFFFFF" : "#333",
-            barraSuperior: mode === "light" ? primaryColorLight : "#666",
+            primary: { 
+              main: mode === "light" ? primaryColorLight : primaryColorDark,
+              light: "#818cf8",
+              dark: "#4338ca",
+              contrastText: "#ffffff"
+            },
+            secondary: {
+              main: "#10b981",
+              contrastText: "#ffffff"
+            },
+            background: {
+              default: mode === "light" ? "#F1F5F9" : "#020617",
+              paper: mode === "light" ? "#FFFFFF" : "#0F172A",
+            },
+            text: {
+              primary: mode === "light" ? "#1E293B" : "#F1F5F9",
+              secondary: mode === "light" ? "#64748b" : "#94a3b8",
+            },
+            action: {
+              active: mode === "light" ? primaryColorLight : primaryColorDark,
+              hover: mode === "light" ? "rgba(15, 23, 42, 0.04)" : "rgba(248, 250, 252, 0.08)",
+              selected: mode === "light" ? "rgba(15, 23, 42, 0.08)" : "rgba(248, 250, 252, 0.12)",
+            }
+          },
+          shape: {
+            borderRadius: 16,
+          },
+          typography: {
+            fontFamily: [
+              'Outfit',
+              'Inter',
+              '-apple-system',
+              'BlinkMacSystemFont',
+              '"Segoe UI"',
+              'Roboto',
+              'sans-serif',
+            ].join(','),
+            h1: { fontWeight: 800, letterSpacing: "-0.02em" },
+            h2: { fontWeight: 800, letterSpacing: "-0.02em" },
+            h3: { fontWeight: 700, letterSpacing: "-0.01em" },
+            h4: { fontWeight: 700, letterSpacing: "-0.01em" },
+            h5: { fontWeight: 600 },
+            h6: { fontWeight: 600 },
+            button: { textTransform: "none", fontWeight: 600, letterSpacing: "0.01em" },
+          },
+          overrides: {
+            MuiButton: {
+              root: {
+                borderRadius: 12,
+                padding: "10px 20px",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 8px 20px -4px rgba(0,0,0,0.2)",
+                },
+              },
+              containedPrimary: {
+                background: `linear-gradient(135deg, ${primaryColorLight} 0%, ${mode === 'light' ? '#4f46e5' : '#818cf8'} 100%)`,
+                boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)",
+              }
+            },
+            MuiPaper: {
+              rounded: {
+                borderRadius: 20,
+              },
+              elevation1: {
+                boxShadow: mode === "light" 
+                  ? "0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)" 
+                  : "none",
+                border: mode === "light" ? "1px solid #f1f5f9" : "1px solid #1e293b",
+                backdropFilter: "blur(12px)",
+              }
+            },
+            MuiDialog: {
+              paper: {
+                borderRadius: 24,
+                padding: 12,
+                border: mode === "light" ? "1px solid #f1f5f9" : "1px solid #1e293b",
+              }
+            },
+            MuiDrawer: {
+              paper: {
+                backgroundColor: mode === "light" ? "#FFFFFF" : "#020617",
+                borderRight: mode === "light" ? "1px solid #f1f5f9" : "1px solid #1e293b",
+                backgroundImage: mode === "dark" 
+                  ? "radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%)" 
+                  : "none",
+              }
+            },
+            MuiAppBar: {
+              root: {
+                boxShadow: "none",
+                backdropFilter: "blur(12px)",
+                background: mode === "light" 
+                  ? "rgba(255, 255, 255, 0.8) !important" 
+                  : "rgba(2, 6, 23, 0.8) !important",
+                color: mode === "light" ? "#1e293b !important" : "#f1f5f9 !important",
+              }
+            },
+            MuiTab: {
+              root: {
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: "0.9rem",
+              }
+            }
           },
           mode,
           appLogoLight,
           appLogoDark,
           appLogoFavicon,
           appName,
-          calculatedLogoDark: () => {
-            if (appLogoDark === defaultLogoDark && appLogoLight !== defaultLogoLight) {
-              return appLogoLight;
-            }
-            return appLogoDark;
-          },
-          calculatedLogoLight: () => {
-            if (appLogoDark !== defaultLogoDark && appLogoLight === defaultLogoLight) {
-              return appLogoDark;
-            }
-            return appLogoLight;
-          },
         },
         locale
       ),

@@ -97,58 +97,61 @@ const iconStyles = {
 
 const useStyles = makeStyles((theme) => ({
   listItem: {
-    height: "44px",
+    height: "48px",
     width: "auto",
-    "&:hover $iconHoverActive": {
+    margin: "4px 12px",
+    borderRadius: "12px",
+    transition: "all 0.2s ease-in-out",
+    "&:hover": {
       backgroundColor: theme.palette.action.hover,
+      "& $listItemText": {
+        color: theme.palette.primary.main,
+      }
     },
+    "&.active": {
+      background: theme.mode === "light" 
+        ? "linear-gradient(90deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%)" 
+        : "linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%)",
+      borderLeft: `4px solid ${theme.palette.primary.main}`,
+      borderRadius: "0 12px 12px 0",
+      margin: "4px 12px 4px 0",
+      "& $listItemText": {
+        color: theme.palette.primary.main,
+        fontWeight: 700,
+      }
+    }
   },
-
   listItemText: {
-    fontSize: "14px",
-    color: theme.mode === "light" ? "#666" : "#FFF",
-  },
-  avatarActive: {
-    backgroundColor: "transparent",
-  },
-  avatarHover: {
-    backgroundColor: "transparent",
+    fontSize: "0.85rem",
+    fontWeight: 500,
+    color: theme.mode === "light" ? "#475569" : "#94a3b8",
+    transition: "all 0.2s",
   },
   iconHoverActive: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: "50%",
-    height: 36,
-    width: 36,
-    backgroundColor: "transparent",
-    transition: "all 0.3s",
-    "&:hover, &.active": {
-      backgroundColor:
-        theme.mode === "light"
-          ? "rgba(0, 0, 0, 0.04)"
-          : "rgba(255, 255, 255, 0.08)",
-    },
+    borderRadius: "12px",
+    height: 34,
+    width: 34,
+    backgroundColor: theme.mode === "light" ? "rgba(15, 23, 42, 0.03)" : "rgba(248, 250, 252, 0.05)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     "& .MuiSvgIcon-root": {
-      fontSize: "1.6rem",
-      // Ícones mais nítidos no modo claro (sem blur),
-      // mantendo o leve glow só no modo escuro
-      filter:
-        theme.mode === "dark"
-          ? "drop-shadow(0 0 1px rgba(0,0,0,0.25))"
-          : "none",
+      fontSize: "1.2rem",
+    },
+    "&.active": {
+      backgroundColor: theme.mode === "light" ? "rgba(99, 102, 241, 0.1)" : "rgba(99, 102, 241, 0.2)",
+      boxShadow: `0 4px 12px ${theme.mode === 'light' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.4)'}`,
+      transform: "scale(1.1)",
     },
   },
   versionChip: {
-    background: iconStyles.dashboard.gradient,
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
     color: "white",
     fontWeight: 600,
-    fontSize: "0.75rem",
-    transition: "all 0.3s ease",
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      transform: "scale(1.05)",
-    },
+    fontSize: "0.7rem",
+    borderRadius: "6px",
+    height: "20px",
   },
 }));
 
@@ -192,7 +195,7 @@ function ListItemLink(props) {
         <ListItem
           button
           component={renderLink}
-          className={classes.listItem}
+          className={`${classes.listItem} ${isActive ? "active" : ""}`}
           style={small ? { paddingLeft: "32px" } : {}}
         >
           {icon ? (

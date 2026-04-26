@@ -1,52 +1,176 @@
-/* Altura correta no mobile (evita "saltos" com a barra de endereço) */
-html, body, #root { height: 100%; }
-#root { min-height: 100dvh; background: #fff; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 
-/* Respeita entalhes e barras (iPhone, Android) */
-.safe-area-top    { padding-top: env(safe-area-inset-top); }
-.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
-
-/* Linha de ações/ícones (a sua fileira verde de ícones) vira carrossel horizontal */
-.toolbar-scroll {
-  display: flex; gap: .5rem; overflow-x: auto; -webkit-overflow-scrolling: touch;
-  padding: .25rem .5rem;
-}
-.toolbar-scroll > * { flex: 0 0 auto; }
-
-/* “Chips”/badges (SITE CONNECT / ATENDIMENTO / MARCIO) quebram ou rolam */
-.badge-row {
-  display: flex; gap: .25rem; flex-wrap: wrap;
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
-}
-
-/* Cartões da lista de tickets ficam tocáveis (44px+) e compactos */
-.ticket-item {
-  display: grid;
-  grid-template-columns: 48px 1fr auto;
-  grid-template-rows: auto auto;
-  column-gap: .75rem; row-gap: .25rem;
-  align-items: center; padding: .5rem .75rem; min-height: 64px;
-}
-.ticket-item .avatar { grid-row: 1 / span 2; width: 48px; height: 48px; border-radius: 50%; }
-.ticket-item .title  { font-size: 16px; font-weight: 600; line-height: 1.2; }
-.ticket-item .msg    { font-size: 14px; color: #374151; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ticket-item .right  { grid-row: 1; grid-column: 3; text-align: right; font-size: 12px; color: #6b7280; }
-.ticket-item .badges { grid-row: 2; grid-column: 2 / span 2; }
-
-/* Botões flutuantes laterais viram “pílulas” tocáveis */
-.icon-pill {
-  width: 36px; height: 36px; border-radius: 18px; display: inline-flex;
-  align-items: center; justify-content: center; border: 1px solid #e5e7eb;
-  background: #fff;
+:root {
+  --primary: #0F172A;
+  --secondary: #6366f1;
+  --accent: #10b981;
+  --bg-light: #f8fafc;
+  --bg-dark: #0f172a;
+  --card-light: #ffffff;
+  --card-dark: #1e293b;
+  --border-light: #e2e8f0;
+  --border-dark: #334155;
+  --text-light: #0f172a;
+  --text-dark: #f8fafc;
+  --muted-light: #64748b;
+  --muted-dark: #94a3b8;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
-/* Esconde o que polui em telas < 360px */
-@media (max-width: 360px) {
-  .hide-xs { display: none !important; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* AppBar compacta no mobile */
-@media (max-width: 600px) {
-  .appbar { min-height: 52px; }
-  .appbar .MuiToolbar-root { min-height: 52px; padding: 0 8px; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  overflow-x: hidden;
 }
+
+[data-theme='dark'] body {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Transitions */
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Premium Card */
+.premium-card {
+  background: var(--card-light);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+[data-theme='dark'] .premium-card {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+  box-shadow: none;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme='dark'] .glass {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* Input Styles Overrides for Material UI */
+.MuiOutlinedInput-root {
+  border-radius: 10px !important;
+}
+
+.MuiButton-root {
+  text-transform: none !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Soft Badge */
+.soft-badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* Layout Utilities */
+.sidebar-logo {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-logo img {
+  max-width: 140px;
+  height: auto;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+/* Tickets List Styling */
+.ticket-list-item {
+  margin: 4px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+.ticket-list-item:hover {
+  background-color: rgba(99, 102, 241, 0.05) !important;
+  border-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Login Page Premium Background */
+body.login-page {
+  background: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+              radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+              radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+              var(--bg-light);
+}
+
+[data-theme='dark'] body.login-page {
+  background: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
+              radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+              var(--bg-dark);
+}
+
