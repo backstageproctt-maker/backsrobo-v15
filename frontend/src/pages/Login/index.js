@@ -151,15 +151,13 @@ const Login = () => {
     remember: false,
   });
 
-  if (loading) return null; // Não mostra nada enquanto estiver pensando
-
   const [branding, setBranding] = useState({
     loginLogo: "/logo.png",
     loginBackground: "https://soushop.com.br/capa.png",
     loginWhatsapp: "https://wa.me/5500000000000",
   });
 
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [userCreationEnabled, setUserCreationEnabled] = useState(true);
 
@@ -176,25 +174,24 @@ const Login = () => {
 
   // ========= Buscar settings globais ============
   useEffect(() => {
-  const fetchBranding = async () => {
-    try {
-      const { data } = await api.get("/global-config/public-branding");
+    const fetchBranding = async () => {
+      try {
+        const { data } = await api.get("/global-config/public-branding");
 
-      setBranding({
-        loginLogo: data.loginLogo || "/logo.png",
-        loginBackground:
-          data.loginBackground ||
-          "https://soushop.com.br/capa.png",
-        loginWhatsapp: data.loginWhatsapp || "https://wa.me/5500000000000",
-      });
-    } catch (err) {
-      console.error("Erro ao carregar branding:", err);
-    }
-  };
+        setBranding({
+          loginLogo: data.loginLogo || "/logo.png",
+          loginBackground:
+            data.loginBackground ||
+            "https://soushop.com.br/capa.png",
+          loginWhatsapp: data.loginWhatsapp || "https://wa.me/5500000000000",
+        });
+      } catch (err) {
+        console.error("Erro ao carregar branding:", err);
+      }
+    };
 
-  fetchBranding();
-}, []);
-
+    fetchBranding();
+  }, []);
 
   // ========== Verificar se cadastro está habilitado ==========
   useEffect(() => {
@@ -209,6 +206,9 @@ const Login = () => {
 
     fetchUserCreationStatus();
   }, []);
+
+  // REGRA DE OURO: return condicional DEPOIS dos hooks
+  if (loading) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
