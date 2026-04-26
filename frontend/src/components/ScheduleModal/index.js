@@ -209,7 +209,10 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 						});
 					}
 
-					if (!scheduleId) return;
+					if (!scheduleId) {
+						setLoadingData(false);
+						return;
+					}
 
 					const { data } = await api.get(`/schedules/${scheduleId}`);
 					setSchedule(prevState => {
