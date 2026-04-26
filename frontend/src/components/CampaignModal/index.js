@@ -261,7 +261,8 @@ useEffect(() => {
 
           Object.entries(data).forEach(([key, value]) => {
             if (key === "scheduledAt" && value !== "" && value !== null) {
-              prevCampaignData[key] = moment(value).format("YYYY-MM-DDTHH:mm");
+              // Usa parseZone para impedir que o React mude o fuso na hora de editar
+              prevCampaignData[key] = moment.parseZone(value).format("YYYY-MM-DDTHH:mm");
             } else {
               prevCampaignData[key] = value === null ? "" : value;
             }
@@ -303,7 +304,7 @@ useEffect(() => {
     try {
       const dataValues = {
         ...values,  // Merge the existing values object
-        whatsappId: whatsappId,
+        whatsappId: whatsappId ? whatsappId : null,
         userId: selectedUser?.id || null,
         queueId: selectedQueue || null
       };
@@ -313,7 +314,8 @@ useEffect(() => {
 
       Object.entries(values).forEach(([key, value]) => {
         if (key === "scheduledAt" && value !== "" && value !== null) {
-          dataValues[key] = moment(value).format("YYYY-MM-DD HH:mm:ss");
+          // Usa o formato com offset para não perder o fuso horário correto no backend
+          dataValues[key] = moment(value).format("YYYY-MM-DDTHH:mm:ssZ");
         } else {
           dataValues[key] = value === "" ? null : value;
         }
