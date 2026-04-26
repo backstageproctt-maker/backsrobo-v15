@@ -7,7 +7,22 @@ import { toast } from "react-toastify";
 import { i18n } from "../../translate/i18n";
 import { useHistory } from 'react-router-dom';
 import { Facebook, Instagram, WhatsApp } from "@material-ui/icons";
-import { Badge, Tooltip, Typography, Button, TextField, Box } from "@material-ui/core";
+import { 
+  Badge, 
+  Tooltip, 
+  Typography, 
+  Button, 
+  TextField, 
+  Box, 
+  Avatar, 
+  IconButton 
+} from "@material-ui/core";
+import { 
+  InfoOutlined, 
+  PlayArrow, 
+  Check, 
+  ChatBubbleOutline 
+} from "@material-ui/icons";
 import { format, isSameDay, parseISO } from "date-fns";
 import { Can } from "../../components/Can";
 import MainContainer from "../../components/MainContainer";
@@ -23,49 +38,163 @@ const useStyles = makeStyles(theme => ({
   kanbanContainer: {
     width: "100%",
     flex: 1,
-    overflow: "hidden",
-    borderRadius: "24px",
-    background: "rgba(255, 255, 255, 0.4)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
     padding: theme.spacing(2),
-  },
-  connectionTag: {
-    background: "#333",
-    color: "#FFF",
-    marginRight: 1,
-    padding: "2px 6px",
-    fontWeight: 'bold',
-    borderRadius: 6,
-    fontSize: "0.7em",
-  },
-  lastMessageTime: {
-    color: theme.palette.text.secondary,
-    fontSize: "0.75rem",
-  },
-  lastMessageTimeUnread: {
-    color: "#00b4db",
-    fontWeight: "bold",
-    fontSize: "0.75rem",
-  },
-  cardButton: {
-    background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
-    color: "#fff",
-    fontWeight: 700,
-    borderRadius: "8px",
-    fontSize: "0.75rem",
-    marginTop: theme.spacing(1),
-    "&:hover": {
-      boxShadow: "0 4px 10px rgba(0, 180, 219, 0.3)",
-    },
+    background: "#f0f4f8",
+    minHeight: "calc(100vh - 150px)",
+    borderRadius: "24px",
+    marginTop: theme.spacing(2),
   },
   dateInput: {
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(1),
     "& .MuiOutlinedInput-root": {
       borderRadius: "12px",
+      backgroundColor: "rgba(255,255,255,0.8)",
     }
   },
 }));
+
+// CUSTOM CARD COMPONENT
+const CustomCard = ({ 
+  title, 
+  label, 
+  description, 
+  laneId, 
+  ticket, 
+  classes, 
+  handleCardClick,
+  IconChannel 
+}) => {
+  return (
+    <Box
+      sx={{
+        background: "#fff",
+        borderRadius: "12px",
+        padding: "14px",
+        marginBottom: "12px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        borderLeft: `5px solid ${ticket.tagColor || "#ccc"}`,
+        position: "relative",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-3px)",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+        }
+      }}
+      onClick={() => handleCardClick(ticket.uuid)}
+    >
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+        <Box>
+           <Box display="flex" alignItems="center" gap={1} mb={0.5}>
+             {IconChannel(ticket.channel)}
+             <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#333" }}>
+               {ticket.contact.name}
+             </Typography>
+           </Box>
+           <Typography variant="caption" style={{ color: "#888", display: "block" }}>
+             Ticket nº {ticket.id}
+           </Typography>
+        </Box>
+        <Avatar 
+          src={ticket.contact.urlPicture} 
+          style={{ width: 32, height: 32, borderRadius: "8px" }}
+        />
+      </Box>
+
+      <Typography 
+        variant="body2" 
+        style={{ 
+          color: "#666", 
+          marginBottom: "12px",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          fontSize: "0.8rem"
+        }}
+      >
+        {ticket.lastMessage || "Sem mensagens recentes"}
+      </Typography>
+
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box display="flex" gap={1}>
+          <PlayArrow style={{ fontSize: 16, color: "#bbb" }} />
+          <Check style={{ fontSize: 16, color: "#bbb" }} />
+          <Box display="flex" alignItems="center">
+            <ChatBubbleOutline style={{ fontSize: 16, color: "#bbb" }} />
+            {ticket.unreadMessages > 0 && (
+              <Box 
+                sx={{ 
+                  background: "#ff9800", 
+                  color: "#fff", 
+                  borderRadius: "50%", 
+                  width: 14, 
+                  height: 14, 
+                  fontSize: 8, 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  ml: 0.5
+                }}
+              >
+                {ticket.unreadMessages}
+              </Box>
+            )}
+          </Box>
+        </Box>
+        <Box 
+          sx={{ 
+            background: ticket.unreadMessages > 0 ? "#ff5252" : "#4caf50", 
+            color: "#fff", 
+            padding: "2px 8px", 
+            borderRadius: "6px", 
+            fontSize: "0.7rem",
+            fontWeight: 800
+          }}
+        >
+          {isSameDay(parseISO(ticket.updatedAt), new Date()) ? (
+            format(parseISO(ticket.updatedAt), "HH:mm")
+          ) : (
+            format(parseISO(ticket.updatedAt), "dd/MM")
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+// CUSTOM LANE HEADER
+const CustomLaneHeader = ({ title, label, color }) => {
+  return (
+    <Box 
+      display="flex" 
+      justifyContent="space-between" 
+      alignItems="center" 
+      padding="8px 12px"
+      mb={1}
+    >
+      <Box display="flex" alignItems="center" gap={1}>
+        <Box 
+          sx={{ 
+            width: 8, 
+            height: 8, 
+            borderRadius: "50%", 
+            backgroundColor: color || "#00b4db" 
+          }} 
+        />
+        <Typography variant="subtitle2" style={{ fontWeight: 800, color: "#444", fontSize: "0.9rem" }}>
+          {title}
+        </Typography>
+        <Typography variant="caption" style={{ color: "#aaa", fontWeight: 700 }}>
+          ({label})
+        </Typography>
+      </Box>
+      <IconButton size="small">
+        <InfoOutlined style={{ fontSize: 18, color: "#ccc" }} />
+      </IconButton>
+    </Box>
+  );
+};
 
 const Kanban = () => {
   const classes = useStyles();
@@ -148,56 +277,26 @@ const Kanban = () => {
       case "whatsapp":
         return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "16px" }} />
       default:
-        return "error";
+        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "16px" }} />;
     }
   };
 
-  const popularCards = (jsonString) => {
-    const filteredTickets = tickets.filter(ticket => ticket.tags.length === 0);
+  const handleCardClick = (uuid) => {
+    history.push('/tickets/' + uuid);
+  };
+
+  const popularCards = () => {
+    const filteredTicketsDefault = tickets.filter(ticket => ticket.tags.length === 0);
 
     const lanes = [
       {
         id: "lane0",
         title: i18n.t("tagsKanban.laneDefault"),
-        label: filteredTickets.length.toString(),
-        cards: filteredTickets.map(ticket => ({
+        label: filteredTicketsDefault.length.toString(),
+        color: "#ccc",
+        cards: filteredTicketsDefault.map(ticket => ({
           id: ticket.id.toString(),
-          label: "Ticket nº " + ticket.id.toString(),
-          description: (
-            <Box>
-              <Box display="flex" justifyContent="space-between" mb={1}>
-                <Typography variant="body2" fontWeight={700}>{ticket.contact.number}</Typography>
-                <Typography
-                  className={Number(ticket.unreadMessages) > 0 ? classes.lastMessageTimeUnread : classes.lastMessageTime}
-                >
-                  {isSameDay(parseISO(ticket.updatedAt), new Date()) ? (
-                    <>{format(parseISO(ticket.updatedAt), "HH:mm")}</>
-                  ) : (
-                    <>{format(parseISO(ticket.updatedAt), "dd/MM")}</>
-                  )}
-                </Typography>
-              </Box>
-              <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }} noWrap>{ticket.lastMessage || " "}</Typography>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Button
-                  className={classes.cardButton}
-                  size="small"
-                  onClick={() => handleCardClick(ticket.uuid)}
-                >
-                  Ver Ticket
-                </Button>
-                {ticket?.user && (
-                   <Badge className={classes.connectionTag}>{ticket.user?.name.toUpperCase()}</Badge>
-                )}
-              </Box>
-            </Box>
-          ),
-          title: <Box display="flex" alignItems="center" gap={1}>
-            <Tooltip title={ticket.whatsapp?.name}>
-              {IconChannel(ticket.channel)}
-            </Tooltip> 
-            <Typography variant="subtitle2" fontWeight={700}>{ticket.contact.name}</Typography>
-          </Box>,
+          ticket: ticket,
           draggable: true,
         })),
       },
@@ -211,38 +310,12 @@ const Kanban = () => {
           id: tag.id.toString(),
           title: tag.name,
           label: filteredTickets?.length.toString(),
+          color: tag.color,
           cards: filteredTickets.map(ticket => ({
             id: ticket.id.toString(),
-            label: "Ticket nº " + ticket.id.toString(),
-            description: (
-              <Box>
-                <Box mb={1}>
-                  <Typography variant="body2" fontWeight={700}>{ticket.contact.number}</Typography>
-                  <Typography variant="body2" sx={{ opacity: 0.8 }} noWrap>{ticket.lastMessage || " "}</Typography>
-                </Box>
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                  <Button
-                    className={classes.cardButton}
-                    size="small"
-                    onClick={() => handleCardClick(ticket.uuid)}
-                  >
-                    Ver Ticket
-                  </Button>
-                  {ticket?.user && (
-                    <Badge className={classes.connectionTag}>{ticket.user?.name.toUpperCase()}</Badge>
-                  )}
-                </Box>
-              </Box>
-            ),
-            title: <Box display="flex" alignItems="center" gap={1}>
-              <Tooltip title={ticket.whatsapp?.name}>
-                {IconChannel(ticket.channel)}
-              </Tooltip>
-              <Typography variant="subtitle2" fontWeight={700}>{ticket.contact.name}</Typography>
-            </Box>,
+            ticket: { ...ticket, tagColor: tag.color },
             draggable: true,
           })),
-          style: { backgroundColor: tag.color, color: "white", borderRadius: "16px", border: "none" }
         };
       }),
     ];
@@ -250,22 +323,16 @@ const Kanban = () => {
     setFile({ lanes });
   };
 
-  const handleCardClick = (uuid) => {
-    history.push('/tickets/' + uuid);
-  };
-
   useEffect(() => {
-    popularCards(jsonString);
+    popularCards();
   }, [tags, tickets]);
 
   const handleCardMove = async (cardId, sourceLaneId, targetLaneId) => {
     try {
       await api.delete(`/ticket-tags/${targetLaneId}`);
-      toast.success('Ticket Tag Removido!');
       await api.put(`/ticket-tags/${targetLaneId}/${sourceLaneId}`);
-      toast.success('Ticket Tag Adicionado com Sucesso!');
-      await fetchTickets(jsonString);
-      popularCards(jsonString);
+      toast.success('Movido com Sucesso!');
+      fetchTickets();
     } catch (err) {
       console.log(err);
     }
@@ -304,11 +371,12 @@ const Kanban = () => {
             variant="contained"
             onClick={handleSearchClick}
             sx={{
-              background: "rgba(0,0,0,0.05)",
+              background: "rgba(255,255,255,0.8)",
               color: "#444",
               fontWeight: 700,
               borderRadius: "12px",
               boxShadow: "none",
+              border: "1px solid rgba(0,0,0,0.05)"
             }}
           >
             Buscar
@@ -317,13 +385,7 @@ const Kanban = () => {
             <Button
               variant="contained"
               onClick={handleAddConnectionClick}
-              sx={{
-                background: "linear-gradient(135deg, #00b4db 0%, #045de9 100%)",
-                color: "#fff",
-                fontWeight: 700,
-                borderRadius: "12px",
-                boxShadow: "0 8px 20px rgba(0, 180, 219, 0.2)",
-              }}
+              color="primary"
             >
               Colunas
             </Button>
@@ -334,8 +396,30 @@ const Kanban = () => {
         <Board
           data={file}
           onCardMoveAcrossLanes={handleCardMove}
-          style={{ backgroundColor: 'transparent' }}
-          laneStyle={{ background: 'rgba(0,0,0,0.02)', borderRadius: "16px", marginRight: "16px" }}
+          style={{ backgroundColor: 'transparent', padding: "0" }}
+          laneStyle={{ 
+            background: 'rgba(0,0,0,0.03)', 
+            borderRadius: "16px", 
+            marginRight: "16px",
+            maxHeight: "100%",
+            width: 320
+          }}
+          customCardLayout
+          components={{
+            Card: (props) => (
+              <CustomCard 
+                {...props} 
+                classes={classes} 
+                handleCardClick={handleCardClick} 
+                IconChannel={IconChannel} 
+              />
+            ),
+            LaneHeader: (props) => (
+              <CustomLaneHeader 
+                {...props} 
+              />
+            )
+          }}
         />
       </Box>
     </MainContainer>
