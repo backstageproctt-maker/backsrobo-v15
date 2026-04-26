@@ -3,7 +3,7 @@ import { i18n } from "../../translate/i18n";
 import React, { useState, useEffect, useContext } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
-import { Button, TextField, Typography } from "@material-ui/core";
+import { Button, TextField, Typography, CircularProgress } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 
 import { IconButton, InputAdornment, Switch } from "@mui/material";
@@ -25,6 +25,26 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
     backgroundColor: "#F8FAFC",
     [theme.breakpoints.down("sm")]: { flexDirection: "column" },
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "#F8FAFC",
+    animation: "$fadeIn 0.5s ease-out",
+  },
+  loadingLogo: {
+    width: "180px",
+    marginBottom: "20px",
+    animation: "$pulse 2s infinite ease-in-out",
+  },
+  "@keyframes pulse": {
+    "0%": { transform: "scale(1)", opacity: 0.8 },
+    "50%": { transform: "scale(1.05)", opacity: 1 },
+    "100%": { transform: "scale(1)", opacity: 0.8 },
   },
   imageSide: {
     flex: 1.2,
@@ -130,7 +150,6 @@ const useStyles = makeStyles((theme) => ({
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
 
-// resolve URL vinda do backend (relativa ou absoluta) com fallback
 const resolveImageUrl = (value, fallback) => {
   if (!value) return fallback;
   if (value.startsWith("http")) return value;
@@ -161,7 +180,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [userCreationEnabled, setUserCreationEnabled] = useState(true);
 
-  // ========= Tema e aparência da página =============
   useEffect(() => {
     try {
       localStorage.setItem("theme", "light");
@@ -172,28 +190,22 @@ const Login = () => {
     return () => document.body.classList.remove("login-page");
   }, []);
 
-  // ========= Buscar settings globais ============
   useEffect(() => {
     const fetchBranding = async () => {
       try {
         const { data } = await api.get("/global-config/public-branding");
-
         setBranding({
           loginLogo: data.loginLogo || "/logo.png",
-          loginBackground:
-            data.loginBackground ||
-            "https://soushop.com.br/capa.png",
+          loginBackground: data.loginBackground || "https://soushop.com.br/capa.png",
           loginWhatsapp: data.loginWhatsapp || "https://wa.me/5500000000000",
         });
       } catch (err) {
         console.error("Erro ao carregar branding:", err);
       }
     };
-
     fetchBranding();
   }, []);
 
-  // ========== Verificar se cadastro está habilitado ==========
   useEffect(() => {
     const fetchUserCreationStatus = async () => {
       try {
@@ -203,12 +215,21 @@ const Login = () => {
         setUserCreationEnabled(false);
       }
     };
-
     fetchUserCreationStatus();
   }, []);
 
-  // REGRA DE OURO: return condicional DEPOIS dos hooks
-  if (loading) return null;
+  // ====== TELA DE CARREGAMENTO CUSTOMIZADA ======
+  if (loading) {
+    return (
+      <div className={classes.loadingContainer}>
+        <img src={defaultLoginLogo} alt="Carregando..." className={classes.loadingLogo} />
+        <CircularProgress style={{ color: "#006B76" }} />
+        <Typography style={{ marginTop: "16px", color: "#64748B", fontWeight: "600" }}>
+          Carregando o sistema...
+        </Typography>
+      </div>
+    );
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -224,7 +245,6 @@ const Login = () => {
       </Helmet>
 
       <div className={classes.root}>
-        {/* ===== Capa dinâmica ===== */}
         <div
           className={classes.imageSide}
           style={{
@@ -237,7 +257,6 @@ const Login = () => {
 
         <div className={classes.formSide}>
           <form className={classes.formContainer} onSubmit={handleSubmit}>
-            {/* LOGO DINÂMICO */}
             <img
               src={resolveImageUrl(branding.loginLogo, defaultLoginLogo)}
               alt="Logo"
@@ -332,7 +351,6 @@ const Login = () => {
           </form>
         </div>
 
-        {/* ===== BOTÃO WHATSAPP DINÂMICO ===== */}
         <div
           className={classes.whatsappButton}
           onClick={() => window.open(branding.loginWhatsapp)}
