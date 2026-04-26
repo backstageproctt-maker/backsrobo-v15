@@ -125,12 +125,8 @@ async function handleVerifySchedules(job) {
         sendAt: {
           // Olha até 5 minutos atrás para recuperar agendamentos que
           // foram pulados por causa de atraso no job (janela estreita)
-          [Op.gte]: moment()
-            .subtract(5, "minutes")
-            .format("YYYY-MM-DD HH:mm:ss"),
-          [Op.lte]: moment()
-            .add("30", "seconds")
-            .format("YYYY-MM-DD HH:mm:ss")
+          [Op.gte]: moment().subtract(5, "minutes").toDate(),
+          [Op.lte]: moment().add("30", "seconds").toDate()
         }
       },
       include: [
