@@ -182,7 +182,7 @@ async function handleSendScheduledMessage(job) {
     }
 
     if (!whatsapp)
-      whatsapp = await GetDefaultWhatsApp(whatsapp.id, schedule.companyId);
+      whatsapp = await GetDefaultWhatsApp(schedule.companyId);
 
     let filePath = null;
     if (schedule.mediaPath) {
