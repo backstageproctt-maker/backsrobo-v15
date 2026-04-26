@@ -213,7 +213,11 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 
 					const { data } = await api.get(`/schedules/${scheduleId}`);
 					setSchedule(prevState => {
-						return { ...prevState, ...data, sendAt: moment(data.sendAt).format('YYYY-MM-DDTHH:mm') };
+						// Usa parseZone para NÃO converter UTC para local (evita desvio de hora)
+						const sendAtFormatted = data.sendAt
+							? moment.parseZone(data.sendAt).format('YYYY-MM-DDTHH:mm')
+							: moment().add(1, 'hour').format('YYYY-MM-DDTHH:mm');
+						return { ...prevState, ...data, sendAt: sendAtFormatted };
 					});
 					console.log(data)
 					if (data.whatsapp) {
@@ -290,9 +294,19 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 		}
 	};
 	const handleSaveSchedule = async values => {
+		// Garante que o sendAt é enviado com o offset local para o backend gravar a hora correta
+		const sendAtWithOffset = values.sendAt
+			? moment(values.sendAt).format('YYYY-MM-DDTHH:mm:ssZ')
+			: values.sendAt;
 		const scheduleData = {
-			...values, userId: user.id, whatsappId: selectedWhatsapps, ticketUserId: selectedUser?.id || null,
-			queueId: selectedQueue || null, intervalo: intervalo || 1, tipoDias: tipoDias || 4
+			...values,
+			sendAt: sendAtWithOffset,
+			userId: user.id,
+			whatsappId: selectedWhatsapps,
+			ticketUserId: selectedUser?.id || null,
+			queueId: selectedQueue || null,
+			intervalo: intervalo || 1,
+			tipoDias: tipoDias || 4
 		};
 
 		try {
