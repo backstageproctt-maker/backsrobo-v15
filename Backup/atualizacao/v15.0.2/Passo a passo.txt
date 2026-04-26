@@ -1,0 +1,13 @@
+
+
+1 - FAZER SNAPSHOT NA VPS
+
+2 - Arir  pasta home/deploy/nomesuainstancia e colar arquivos da atualização
+
+3 - Rodar o comando abaixo (troque para o nome da sua instância):
+
+cd /home/deploy/nomedasuainstancia
+chmod +x instalador.sh
+./instalador.sh
+
+4 - Abrir site e pressionar CTRL + F5 - INSTALAÇÃO FINALIZADA

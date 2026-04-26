@@ -122,12 +122,10 @@ async function handleVerifySchedules(job) {
       where: {
         status: "PENDENTE",
         sentAt: null,
-        sendAt: {
           // Olha até 24 horas atrás para recuperar agendamentos que
           // foram pulados por causa de atraso no job ou reinicialização
           [Op.gte]: moment().subtract(24, "hours").toDate(),
           [Op.lte]: moment().add("30", "seconds").toDate()
-        }
       },
       include: [
         { model: Contact, as: "contact" },
@@ -161,8 +159,6 @@ async function handleSendScheduledMessage(job) {
   const {
     data: { schedule }
   } = job;
-  let scheduleRecord: Schedule | null = null;
-
   try {
     scheduleRecord = await Schedule.findByPk(schedule.id, {
       include: [{ model: Contact, as: "contact" }]
@@ -170,6 +166,8 @@ async function handleSendScheduledMessage(job) {
   } catch (e) {
     Sentry.captureException(e);
     logger.info(`Erro ao tentar consultar agendamento: ${schedule.id}`);
+  }
+
   if (!scheduleRecord) {
     logger.error(`Agendamento ${schedule.id} não encontrado.`);
     return;
@@ -178,19 +176,19 @@ async function handleSendScheduledMessage(job) {
   try {
     let whatsapp;
 
-    if (!isNil(scheduleRecord.whatsappId)) {
-      whatsapp = await Whatsapp.findByPk(scheduleRecord.whatsappId);
+    if (!isNil(schedule.whatsappId)) {
+      whatsapp = await Whatsapp.findByPk(schedule.whatsappId);
     }
 
     if (!whatsapp)
-      whatsapp = await GetDefaultWhatsApp(scheduleRecord.companyId);
+      whatsapp = await GetDefaultWhatsApp(whatsapp.id, schedule.companyId);
 
     let filePath = null;
-    if (scheduleRecord.mediaPath) {
+    if (schedule.mediaPath) {
       filePath = path.resolve(
         "public",
-        `company${scheduleRecord.companyId}`,
-        scheduleRecord.mediaPath
+        `company${schedule.companyId}`,
+        schedule.mediaPath
       );
     }
 
@@ -450,11 +448,7 @@ async function getCampaign(id) {
               "isWhatsappValid",
               "isGroup"
             ],
-            // Aceita contatos válidos (true) e não verificados (null).
-            // Exclui apenas os explicitamente inválidos (false).
-            where: {
-              isWhatsappValid: { [Op.or]: [true, null] }
-            }
+            where: { isWhatsappValid: true }
           }
         ]
       },
@@ -463,16 +457,10 @@ async function getCampaign(id) {
         as: "whatsapp",
         attributes: ["id", "name"]
       },
+      // NOVO: Incluir a associação com Files
       {
         model: Files,
         as: "fileList"
-      },
-      // Lane do Kanban selecionada na campanha
-      {
-        model: Tag,
-        as: "tagList",
-        attributes: ["id", "name", "color"],
-        required: false
       }
     ]
   });
@@ -1120,31 +1108,6 @@ async function handleDispatchCampaign(job) {
           }
         }
         await campaignShipping.update({ deliveredAt: moment() });
-
-        // ===== LANE DO KANBAN =====
-        // Se a campanha tiver uma Lane selecionada, aplica ao ticket do lead
-        if (campaign.tagListId && ticket) {
-          try {
-            const existingTag = await TicketTag.findOne({
-              where: { ticketId: ticket.id, tagId: campaign.tagListId }
-            });
-            if (!existingTag) {
-              await TicketTag.create({ ticketId: ticket.id, tagId: campaign.tagListId });
-              logger.info(`Lane ${campaign.tagListId} aplicada ao ticket ${ticket.id} (campanha ${campaignId})`);
-            }
-            // Emite socket para atualizar o frontend em tempo real
-            const updatedTicket = await ShowTicketService(ticket.id, campaign.companyId);
-            const io = getIO();
-            io.of(String(campaign.companyId)).emit(`company-${campaign.companyId}-ticket`, {
-              action: "update",
-              ticket: updatedTicket
-            });
-          } catch (laneErr: any) {
-            Sentry.captureException(laneErr);
-            logger.error(`Erro ao aplicar Lane ao ticket: ${laneErr.message}`);
-          }
-        }
-        // ===== FIM LANE DO KANBAN =====
       }
     } else {
       if (campaign.confirmation && campaignShipping.confirmation === null) {
@@ -1239,68 +1202,6 @@ async function handleDispatchCampaign(job) {
       }
 
       await campaignShipping.update({ deliveredAt: moment() });
-
-      // ===== LANE DO KANBAN (modo sem ticket aberto) =====
-      // Se a campanha tiver Lane, criamos contato+ticket para aplicar a Lane
-      if (campaign.tagListId) {
-        try {
-          const whatsapp = await Whatsapp.findByPk(campaign.whatsappId);
-          const [contact] = await Contact.findOrCreate({
-            where: {
-              number: campaignShipping.number,
-              companyId: campaign.companyId
-            },
-            defaults: {
-              companyId: campaign.companyId,
-              name: campaignShipping.contact.name,
-              number: campaignShipping.number,
-              email: campaignShipping.contact.email || "",
-              whatsappId: campaign.whatsappId,
-              profilePicUrl: ""
-            }
-          });
-
-          let laneTicket = await Ticket.findOne({
-            where: {
-              contactId: contact.id,
-              companyId: campaign.companyId,
-              whatsappId: whatsapp.id,
-              status: ["open", "pending"]
-            }
-          });
-
-          if (!laneTicket) {
-            laneTicket = await Ticket.create({
-              companyId: campaign.companyId,
-              contactId: contact.id,
-              whatsappId: whatsapp.id,
-              queueId: campaign?.queueId || null,
-              userId: campaign?.userId || null,
-              status: campaign?.statusTicket || "pending"
-            });
-          }
-
-          const existingTag = await TicketTag.findOne({
-            where: { ticketId: laneTicket.id, tagId: campaign.tagListId }
-          });
-          if (!existingTag) {
-            await TicketTag.create({ ticketId: laneTicket.id, tagId: campaign.tagListId });
-            logger.info(`Lane ${campaign.tagListId} aplicada ao ticket ${laneTicket.id} (campanha ${campaignId})`);
-          }
-
-          // Emite socket para atualizar o frontend em tempo real
-          const updatedTicket = await ShowTicketService(laneTicket.id, campaign.companyId);
-          const io = getIO();
-          io.of(String(campaign.companyId)).emit(`company-${campaign.companyId}-ticket`, {
-            action: "update",
-            ticket: updatedTicket
-          });
-        } catch (laneErr: any) {
-          Sentry.captureException(laneErr);
-          logger.error(`Erro ao aplicar Lane (sem ticket): ${laneErr.message}`);
-        }
-      }
-      // ===== FIM LANE DO KANBAN =====
     }
     await verifyAndFinalizeCampaign(campaign);
 
@@ -1843,8 +1744,8 @@ async function handleProcessLanes() {
               const nextTag = await Tag.findByPk(t?.tag.nextLaneId);
 
               const dataLimite = new Date();
-              dataLimite.setSeconds(
-                dataLimite.getSeconds() - Number(t.tag.timeLane)
+              dataLimite.setHours(
+                dataLimite.getHours() - Number(t.tag.timeLane)
               );
               const dataUltimaInteracaoChamado = new Date(
                 t.ticket.updatedAt
