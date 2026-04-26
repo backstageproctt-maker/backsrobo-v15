@@ -76,85 +76,19 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError(err.message);
   }
 
-  if (typeof data.tagListId === 'number' && !data.contactListId) {
+  const record = await CreateService({
+    ...data,
+    companyId
+  });
 
-    const tagId = data.tagListId;
-    const campanhaNome = data.name;
-
-    async function createContactListFromTag(tagId) {
-
-      const currentDate = new Date();
-      const formattedDate = currentDate.toISOString();
-
-      try {
-        const contactTags = await ContactTag.findAll({ where: { tagId } });
-        const contactIds = contactTags.map((contactTag) => contactTag.contactId);
-
-        const contacts = await Contact.findAll({ where: { id: contactIds } });
-
-        const randomName = `${campanhaNome} | TAG: ${tagId} - ${formattedDate}` // Implement your own function to generate a random name
-        const contactList = await ContactList.create({ name: randomName, companyId: companyId });
-
-        const { id: contactListId } = contactList;
-
-        const contactListItems = contacts.map((contact) => ({
-          name: contact.name,
-          number: contact.number,
-          email: contact.email,
-          contactListId,
-          companyId,
-          isWhatsappValid: true,
-          isGroup: contact.isGroup
-
-        }));
-
-        await ContactListItem.bulkCreate(contactListItems);
-
-        // Return the ContactList ID
-        return contactListId;
-      } catch (error) {
-        console.error('Error creating contact list:', error);
-        throw error;
-      }
-    }
-
-
-    createContactListFromTag(tagId)
-      .then(async (contactListId) => {
-        const record = await CreateService({
-          ...data,
-          companyId,
-          contactListId: contactListId,
-        });
-        const io = getIO();
-        io.of(String(companyId))
-          .emit(`company-${companyId}-campaign`, {
-            action: "create",
-            record
-          });
-        return res.status(200).json(record);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        return res.status(500).json({ error: 'Error creating contact list' });
-      });
-
-  } else { // SAI DO CHECK DE TAG
-
-    const record = await CreateService({
-      ...data,
-      companyId
+  const io = getIO();
+  io.of(String(companyId))
+    .emit(`company-${companyId}-campaign`, {
+      action: "create",
+      record
     });
 
-    const io = getIO();
-    io.of(String(companyId))
-      .emit(`company-${companyId}-campaign`, {
-        action: "create",
-        record
-      });
-
-    return res.status(200).json(record);
-  }
+  return res.status(200).json(record);
 };
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
