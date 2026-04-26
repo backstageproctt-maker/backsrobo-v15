@@ -317,7 +317,6 @@ const TicketsManagerTabs = () => {
     if (searchedTerm === "") {
       setSearchParam(searchedTerm);
       setForceSearch(!forceSearch);
-      // setFilter(false);
       setTab("open");
       return;
     } else if (tab !== "search") {
@@ -328,7 +327,7 @@ const TicketsManagerTabs = () => {
     searchTimeout = setTimeout(() => {
       setSearchParam(searchedTerm);
       setForceSearch(!forceSearch);
-    }, 500);
+    }, 300);
   };
 
   const handleBack = () => {
@@ -387,15 +386,13 @@ const TicketsManagerTabs = () => {
     clearTimeout(searchTimeout);
 
     if (tags.length === 0) {
+      setSelectedTags([]);
       setForceSearch(!forceSearch);
-    } else if (tab !== "search") {
-      setTab("search");
-    }
-
-    searchTimeout = setTimeout(() => {
+    } else {
+      if (tab !== "search") setTab("search");
       setSelectedTags(tags);
       setForceSearch(!forceSearch);
-    }, 500);
+    }
   };
 
   const handleSelectedUsers = (selecteds) => {
@@ -404,14 +401,13 @@ const TicketsManagerTabs = () => {
     clearTimeout(searchTimeout);
 
     if (users.length === 0) {
+      setSelectedUsers([]);
       setForceSearch(!forceSearch);
-    } else if (tab !== "search") {
-      setTab("search");
-    }
-    searchTimeout = setTimeout(() => {
+    } else {
+      if (tab !== "search") setTab("search");
       setSelectedUsers(users);
       setForceSearch(!forceSearch);
-    }, 500);
+    }
   };
 
   const handleSelectedWhatsapps = (selecteds) => {
@@ -420,14 +416,13 @@ const TicketsManagerTabs = () => {
     clearTimeout(searchTimeout);
 
     if (whatsapp.length === 0) {
+      setSelectedWhatsapp([]);
       setForceSearch(!forceSearch);
-    } else if (tab !== "search") {
-      setTab("search");
-    }
-    searchTimeout = setTimeout(() => {
+    } else {
+      if (tab !== "search") setTab("search");
       setSelectedWhatsapp(whatsapp);
       setForceSearch(!forceSearch);
-    }, 500);
+    }
   };
 
   const handleSelectedStatus = (selecteds) => {
@@ -436,15 +431,13 @@ const TicketsManagerTabs = () => {
     clearTimeout(searchTimeout);
 
     if (statusFilter.length === 0) {
+      setSelectedStatus([]);
       setForceSearch(!forceSearch);
-    } else if (tab !== "search") {
-      setTab("search");
-    }
-
-    searchTimeout = setTimeout(() => {
+    } else {
+      if (tab !== "search") setTab("search");
       setSelectedStatus(statusFilter);
       setForceSearch(!forceSearch);
-    }, 500);
+    }
   };
 
   const handleFilter = () => {

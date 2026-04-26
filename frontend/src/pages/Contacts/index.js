@@ -264,20 +264,27 @@ const Contacts = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchContacts = async () => {
-        try {
-          const { data } = await api.get("/contacts/", {
-            params: { searchParam, pageNumber, contactTag: JSON.stringify(selectedTags) },
-          });
-          dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) { toastError(err); }
-      };
+    const fetchContacts = async () => {
+      try {
+        const { data } = await api.get("/contacts/", {
+          params: { searchParam, pageNumber, contactTag: JSON.stringify(selectedTags) },
+        });
+        dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
+        setHasMore(data.hasMore);
+        setLoading(false);
+      } catch (err) {
+        toastError(err);
+      }
+    };
+
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchContacts();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchContacts();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
   }, [searchParam, pageNumber, selectedTags]);
 
   useEffect(() => {

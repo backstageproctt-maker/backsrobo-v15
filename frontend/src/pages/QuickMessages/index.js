@@ -119,10 +119,14 @@ const Quickemessages = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchQuickemessages();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchQuickemessages();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParam, pageNumber]);
 

@@ -302,23 +302,28 @@ const Invoices = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchInvoices = async () => {
-        try {
-          const { data } = await api.get("/invoices/all", {
-            params: { searchParam, pageNumber },
-          });
+    const fetchInvoices = async () => {
+      try {
+        const { data } = await api.get("/invoices/all", {
+          params: { searchParam, pageNumber },
+        });
 
-          dispatch({ type: "LOAD_INVOICES", payload: data });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toastError(err);
-        }
-      };
+        dispatch({ type: "LOAD_INVOICES", payload: data });
+        setHasMore(data.hasMore);
+        setLoading(false);
+      } catch (err) {
+        toastError(err);
+      }
+    };
+
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchInvoices();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchInvoices();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
   }, [searchParam, pageNumber]);
   useEffect(() => {
     window.addEventListener("error", (e) => {

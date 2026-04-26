@@ -43,24 +43,29 @@ const ListService = async ({
   const limit = 20;
   const offset = limit * (+pageNumber - 1);
 
-  const { count, rows: records } = await Campaign.findAndCountAll({
-    where: whereCondition,
-    limit,
-    offset,
-    order: [["status", "ASC"], ["scheduledAt", "DESC"]],
-    include: [
-      { model: ContactList },
-      { model: Whatsapp, attributes: ["id", "name"] }
-    ]
-  });
+  try {
+    const { count, rows: records } = await Campaign.findAndCountAll({
+      where: whereCondition,
+      limit,
+      offset,
+      order: [["status", "ASC"], ["scheduledAt", "DESC"]],
+      include: [
+        { model: ContactList },
+        { model: Whatsapp, attributes: ["id", "name"] }
+      ]
+    });
 
-  const hasMore = count > offset + records.length;
+    const hasMore = count > offset + records.length;
 
-  return {
-    records,
-    count,
-    hasMore
-  };
+    return {
+      records,
+      count,
+      hasMore
+    };
+  } catch (err) {
+    console.error(">>> ERRO NO LISTSERVICE DE CAMPANHAS:", err);
+    throw err;
+  }
 };
 
 export default ListService;

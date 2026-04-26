@@ -113,22 +113,27 @@ const Tags = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchTags = async () => {
-        try {
-          const { data } = await api.get("/tags/", {
-            params: { searchParam, pageNumber, kanban: 1 },
-          });
-          dispatch({ type: "LOAD_TAGS", payload: data.tags });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toastError(err);
-        }
-      };
+    const fetchTags = async () => {
+      try {
+        const { data } = await api.get("/tags/", {
+          params: { searchParam, pageNumber, kanban: 1 },
+        });
+        dispatch({ type: "LOAD_TAGS", payload: data.tags });
+        setHasMore(data.hasMore);
+        setLoading(false);
+      } catch (err) {
+        toastError(err);
+      }
+    };
+
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchTags();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchTags();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
   }, [searchParam, pageNumber]);
 
   useEffect(() => {

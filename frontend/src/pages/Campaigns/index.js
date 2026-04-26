@@ -140,10 +140,14 @@ const Campaigns = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchCampaigns();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchCampaigns();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParam, pageNumber]);
 

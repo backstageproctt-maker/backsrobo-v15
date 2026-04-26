@@ -114,22 +114,27 @@ const ContactLists = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchContactLists = async () => {
-        try {
-          const { data } = await api.get("/contact-lists/", {
-            params: { searchParam, pageNumber },
-          });
-          dispatch({ type: "LOAD_CONTACTLISTS", payload: data.records });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toastError(err);
-        }
-      };
+    const fetchContactLists = async () => {
+      try {
+        const { data } = await api.get("/contact-lists/", {
+          params: { searchParam, pageNumber },
+        });
+        dispatch({ type: "LOAD_CONTACTLISTS", payload: data.records });
+        setHasMore(data.hasMore);
+        setLoading(false);
+      } catch (err) {
+        toastError(err);
+      }
+    };
+
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchContactLists();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchContactLists();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
   }, [searchParam, pageNumber]);
 
   useEffect(() => {

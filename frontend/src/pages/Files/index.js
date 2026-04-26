@@ -128,10 +128,14 @@ const FileLists = () => {
 
     useEffect(() => {
         setLoading(true);
-        const delayDebounceFn = setTimeout(() => {
+        if (searchParam.length > 0) {
+            const delayDebounceFn = setTimeout(() => {
+                fetchFileLists();
+            }, 500);
+            return () => clearTimeout(delayDebounceFn);
+        } else {
             fetchFileLists();
-        }, 500);
-        return () => clearTimeout(delayDebounceFn);
+        }
     }, [searchParam, pageNumber, fetchFileLists]);
 
     useEffect(() => {

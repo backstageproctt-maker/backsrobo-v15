@@ -113,22 +113,27 @@ const Reports = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchContacts = async () => {
-        try {
-          const { data } = await api.get("contacts", {
-            params: { searchParam },
-          });
-          setOptions(data.contacts);
-          setLoading(false);
-        } catch (err) {
-          setLoading(false);
-          toastError(err);
-        }
-      };
+    const fetchContacts = async () => {
+      try {
+        const { data } = await api.get("contacts", {
+          params: { searchParam },
+        });
+        setOptions(data.contacts);
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        toastError(err);
+      }
+    };
+
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchContacts();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchContacts();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
   }, [searchParam]);
 
   const handleFilter = async (page) => {

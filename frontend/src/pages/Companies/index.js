@@ -132,24 +132,29 @@ const Companies = () => {
     }, [searchParam]); //
 
     useEffect(() => {
-        setLoading(true); //
-        const delayDebounceFn = setTimeout(() => { //
-            const fetchCompanies = async () => {
-                try {
-                    const { data } = await api.get("/companiesPlan/", { //
-                        params: { searchParam, pageNumber }, //
-                    });
-                    dispatch({ type: "LOAD_COMPANIES", payload: data.companies }); //
-                    setHasMore(data.hasMore); //
-                    setLoading(false); //
-                } catch (err) {
-                    toastError(err); //
-                }
-            };
-            fetchCompanies(); //
-        }, 500); //
-        return () => clearTimeout(delayDebounceFn); //
-    }, [searchParam, pageNumber]); //
+        setLoading(true);
+        const fetchCompanies = async () => {
+            try {
+                const { data } = await api.get("/companiesPlan/", {
+                    params: { searchParam, pageNumber },
+                });
+                dispatch({ type: "LOAD_COMPANIES", payload: data.companies });
+                setHasMore(data.hasMore);
+                setLoading(false);
+            } catch (err) {
+                toastError(err);
+            }
+        };
+
+        if (searchParam.length > 0) {
+            const delayDebounceFn = setTimeout(() => {
+                fetchCompanies();
+            }, 500);
+            return () => clearTimeout(delayDebounceFn);
+        } else {
+            fetchCompanies();
+        }
+    }, [searchParam, pageNumber]);
 
     // // Evento de socket para atualização de empresas
     // useEffect(() => {

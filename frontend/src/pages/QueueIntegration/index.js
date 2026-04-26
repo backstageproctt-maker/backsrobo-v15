@@ -146,22 +146,27 @@ const QueueIntegration = () => {
 
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchIntegrations = async () => {
-        try {
-          const { data } = await api.get("/queueIntegration/", {
-            params: { searchParam, pageNumber },
-          });
-          dispatch({ type: "LOAD_INTEGRATIONS", payload: data.queueIntegrations });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toastError(err);
-        }
-      };
+    const fetchIntegrations = async () => {
+      try {
+        const { data } = await api.get("/queueIntegration/", {
+          params: { searchParam, pageNumber },
+        });
+        dispatch({ type: "LOAD_INTEGRATIONS", payload: data.queueIntegrations });
+        setHasMore(data.hasMore);
+        setLoading(false);
+      } catch (err) {
+        toastError(err);
+      }
+    };
+
+    if (searchParam.length > 0) {
+      const delayDebounceFn = setTimeout(() => {
+        fetchIntegrations();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+    } else {
       fetchIntegrations();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    }
   }, [searchParam, pageNumber]);
 
   useEffect(() => {

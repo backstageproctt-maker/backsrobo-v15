@@ -90,7 +90,7 @@ const GlobalConfig = () => {
   const classes = useStyles();
 
   const [tab, setTab] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState({
     loginLogo: false,
@@ -192,15 +192,15 @@ const GlobalConfig = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Paper className={classes.root}>
-        <div className={classes.loadingWrapper}>
-          <CircularProgress />
-        </div>
-      </Paper>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Paper className={classes.root}>
+  //       <div className={classes.loadingWrapper}>
+  //         <CircularProgress />
+  //       </div>
+  //     </Paper>
+  //   );
+  // }
 
   return (
     <Paper className={classes.root}>
