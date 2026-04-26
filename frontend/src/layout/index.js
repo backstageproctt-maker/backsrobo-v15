@@ -174,6 +174,8 @@ const useStyles = makeStyles((theme) => ({
     }),
     overflowX: "hidden",
     overflowY: "hidden",
+    background: "linear-gradient(180deg, #0076FF 0%, #0056D2 100%)",
+    borderRight: "none",
   },
   drawerPaperClose: {
     overflowX: "hidden",
@@ -184,6 +186,8 @@ const useStyles = makeStyles((theme) => ({
     }),
     width: theme.spacing(7),
     [theme.breakpoints.up("sm")]: { width: theme.spacing(9) },
+    background: "linear-gradient(180deg, #0076FF 0%, #0056D2 100%)",
+    borderRight: "none",
   },
 
   appBarSpacer: { minHeight: 48 },
@@ -387,7 +391,7 @@ const LoggedInLayout = ({ children }) => {
             style={{ display: "block", margin: "0 auto" }}
           />
           <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
-            <ChevronLeftIcon />
+            <ChevronLeftIcon style={{ color: "#FFFFFF" }} />
           </IconButton>
         </div>
         <List className={classes.containerWithScroll}>
@@ -410,7 +414,7 @@ const LoggedInLayout = ({ children }) => {
             onClick={() => setDrawerOpen(!drawerOpen)}
             className={clsx(drawerOpen && classes.menuButtonHidden)}
           >
-            <MenuIcon />
+            <MenuIcon style={{ color: "#FFFFFF" }} />
           </IconButton>
 
           {/* Título (desktop apenas) */}

@@ -99,56 +99,41 @@ const useStyles = makeStyles((theme) => ({
   listItem: {
     height: "44px",
     width: "auto",
-    "&:hover $iconHoverActive": {
-      backgroundColor: theme.palette.action.hover,
+    margin: "2px 10px",
+    borderRadius: "8px",
+    "&:hover": {
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
+    "&.active": {
+      backgroundColor: "rgba(255, 255, 255, 0.2)",
+    }
   },
-
   listItemText: {
     fontSize: "14px",
-    color: theme.mode === "light" ? "#666" : "#FFF",
-  },
-  avatarActive: {
-    backgroundColor: "transparent",
-  },
-  avatarHover: {
-    backgroundColor: "transparent",
+    color: "#FFFFFF",
+    fontWeight: 500,
   },
   iconHoverActive: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: "50%",
-    height: 36,
-    width: 36,
+    height: 32,
+    width: 32,
     backgroundColor: "transparent",
-    transition: "all 0.3s",
-    "&:hover, &.active": {
-      backgroundColor:
-        theme.mode === "light"
-          ? "rgba(0, 0, 0, 0.04)"
-          : "rgba(255, 255, 255, 0.08)",
-    },
+    color: "#FFFFFF",
     "& .MuiSvgIcon-root": {
-      fontSize: "1.6rem",
-      // Ícones mais nítidos no modo claro (sem blur),
-      // mantendo o leve glow só no modo escuro
-      filter:
-        theme.mode === "dark"
-          ? "drop-shadow(0 0 1px rgba(0,0,0,0.25))"
-          : "none",
+      fontSize: "1.4rem",
     },
   },
-  versionChip: {
-    background: iconStyles.dashboard.gradient,
-    color: "white",
-    fontWeight: 600,
-    fontSize: "0.75rem",
-    transition: "all 0.3s ease",
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main,
-      transform: "scale(1.05)",
-    },
+  listSubheader: {
+    color: "rgba(255, 255, 255, 0.6)",
+    textTransform: "uppercase",
+    fontSize: "11px",
+    fontWeight: 700,
+    letterSpacing: "1px",
+    paddingTop: "16px",
+    lineHeight: "24px",
   },
 }));
 
@@ -166,8 +151,6 @@ function ListItemLink(props) {
       )),
     [to]
   );
-
-  const iconStyle = iconStyles[iconKey] || iconStyles.default;
 
   const ConditionalTooltip = ({ children, tooltipEnabled }) =>
     tooltipEnabled ? (
@@ -192,37 +175,14 @@ function ListItemLink(props) {
         <ListItem
           button
           component={renderLink}
-          className={classes.listItem}
+          className={`${classes.listItem} ${isActive ? "active" : ""}`}
           style={small ? { paddingLeft: "32px" } : {}}
         >
           {icon ? (
-            <ListItemIcon>
-              {showBadge ? (
-                <Badge
-                  badgeContent="!"
-                  color="error"
-                  overlap="circular"
-                  className={classes.badge}
-                >
-                  <Avatar
-                    className={`${classes.iconHoverActive} ${
-                      isActive ? "active" : ""
-                    }`}
-                    style={{ color: iconStyle.color }}
-                  >
-                    {icon}
-                  </Avatar>
-                </Badge>
-              ) : (
-                <Avatar
-                  className={`${classes.iconHoverActive} ${
-                    isActive ? "active" : ""
-                  }`}
-                  style={{ color: iconStyle.color }}
-                >
-                  {icon}
-                </Avatar>
-              )}
+            <ListItemIcon style={{ minWidth: "40px" }}>
+              <div className={classes.iconHoverActive} style={{ color: "#FFFFFF" }}>
+                {icon}
+              </div>
             </ListItemIcon>
           ) : null}
           <ListItemText
@@ -468,6 +428,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
 
   return (
     <div onClick={drawerClose}>
+      <ListSubheader inset className={classes.listSubheader}>
+        Overview
+      </ListSubheader>
       <Can
         role={
           (user.profile === "user" && user.showDashboard === "enabled") ||
@@ -478,119 +441,38 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         perform={"drawer-admin-items:view"}
         yes={() => (
           <>
-            <Tooltip
-              placement="right"
-              arrow
-              title={
-                collapsed ? (
-                  <Typography
-                    style={{ fontWeight: 700, fontSize: "0.9rem" }}
-                  >
-                    {i18n.t("mainDrawer.listItems.management")}
-                  </Typography>
-                ) : (
-                  ""
-                )
+            <ListItemLink
+              to="/"
+              primary="Dashboard"
+              icon={<DashboardOutlinedIcon />}
+              iconKey="dashboard"
+              tooltip={collapsed}
+            />
+            <ListItemLink
+              to="/reports"
+              primary={i18n.t("mainDrawer.listItems.reports")}
+              icon={<Description />}
+              iconKey="dashboard"
+              tooltip={collapsed}
+            />
+            <Can
+              role={
+                user.profile === "user" &&
+                user.allowRealTime === "enabled"
+                  ? "admin"
+                  : user.profile
               }
-            >
-              <ListItem
-                dense
-                button
-                onClick={() =>
-                  setOpenDashboardSubmenu((prev) => !prev)
-                }
-                onMouseEnter={() => setManagementHover(true)}
-                onMouseLeave={() => setManagementHover(false)}
-              >
-                <ListItemIcon>
-                  <Avatar
-                    className={`${classes.iconHoverActive} ${
-                      isManagementActive || managementHover
-                        ? "active"
-                        : ""
-                    }`}
-                    style={{ color: iconStyles.dashboard.color }}
-                  >
-                    <Dashboard />
-                  </Avatar>
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Typography className={classes.listItemText}>
-                      {i18n.t("mainDrawer.listItems.management")}
-                    </Typography>
-                  }
+              perform={"drawer-admin-items:view"}
+              yes={() => (
+                <ListItemLink
+                  to="/moments"
+                  primary={i18n.t("mainDrawer.listItems.chatsTempoReal")}
+                  icon={<GridOn />}
+                  iconKey="dashboard"
+                  tooltip={collapsed}
                 />
-                {openDashboardSubmenu ? (
-                  <ExpandLessIcon />
-                ) : (
-                  <ExpandMoreIcon />
-                )}
-              </ListItem>
-            </Tooltip>
-            <Collapse
-              in={openDashboardSubmenu}
-              timeout="auto"
-              unmountOnExit
-              style={{
-                backgroundColor:
-                  theme.mode === "light"
-                    ? "rgba(120,120,120,0.1)"
-                    : "rgba(120,120,120,0.5)",
-              }}
-            >
-              <Can
-                role={
-                  user.profile === "user" &&
-                  user.showDashboard === "enabled"
-                    ? "admin"
-                    : user.profile
-                }
-                perform={"drawer-admin-items:view"}
-                yes={() => (
-                  <>
-                    <ListItemLink
-                      small
-                      to="/"
-                      primary="Dashboard"
-                      icon={<DashboardOutlinedIcon />}
-                      iconKey="dashboard"
-                      tooltip={collapsed}
-                    />
-                    <ListItemLink
-                      small
-                      to="/reports"
-                      primary={i18n.t(
-                        "mainDrawer.listItems.reports"
-                      )}
-                      icon={<Description />}
-                      iconKey="dashboard"
-                      tooltip={collapsed}
-                    />
-                  </>
-                )}
-              />
-              <Can
-                role={
-                  user.profile === "user" &&
-                  user.allowRealTime === "enabled"
-                    ? "admin"
-                    : user.profile
-                }
-                perform={"drawer-admin-items:view"}
-                yes={() => (
-                  <ListItemLink
-                    to="/moments"
-                    primary={i18n.t(
-                      "mainDrawer.listItems.chatsTempoReal"
-                    )}
-                    icon={<GridOn />}
-                    iconKey="dashboard"
-                    tooltip={collapsed}
-                  />
-                )}
-              />
-            </Collapse>
+              )}
+            />
           </>
         )}
       />
@@ -602,6 +484,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         tooltip={collapsed}
       />
 
+      <ListSubheader inset className={classes.listSubheader}>
+        {i18n.t("mainDrawer.listItems.operation", "Operação")}
+      </ListSubheader>
       <ListItemLink
         to="/quick-messages"
         primary={i18n.t("mainDrawer.listItems.quickMessages")}
@@ -690,10 +575,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         perform="dashboard:view"
         yes={() => (
           <>
-            <Divider />
-            <ListSubheader inset>
-              {i18n.t("mainDrawer.listItems.administration")}
-            </ListSubheader>
+      <ListSubheader inset className={classes.listSubheader}>
+        {i18n.t("mainDrawer.listItems.administration", "Administração")}
+      </ListSubheader>
             {showCampaigns && (
               <Can
                 role={user.profile}
@@ -1089,7 +973,6 @@ const MainListItems = ({ collapsed, drawerClose }) => {
       />
       {!collapsed && (
         <React.Fragment>
-          <Divider />
           <Box style={{ padding: "16px", textAlign: "center" }}>
             <Chip
               label="V15.0.1"
