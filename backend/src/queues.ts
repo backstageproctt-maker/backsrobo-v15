@@ -453,7 +453,14 @@ async function getCampaign(id) {
               "isWhatsappValid",
               "isGroup"
             ],
-            where: { isWhatsappValid: true }
+            // Inclui contatos válidos OU não validados (null)
+            // Contatos explicitamente inválidos (false) são excluídos
+            where: {
+              [Op.or]: [
+                { isWhatsappValid: true },
+                { isWhatsappValid: null }
+              ]
+            }
           }
         ]
       },
@@ -462,7 +469,6 @@ async function getCampaign(id) {
         as: "whatsapp",
         attributes: ["id", "name"]
       },
-      // NOVO: Incluir a associação com Files
       {
         model: Files,
         as: "fileList"
@@ -727,56 +733,74 @@ async function handleProcessCampaign(job) {
   try {
     const { id }: ProcessCampaignData = job.data;
     const campaign = await getCampaign(id);
-    const settings = await getSettings(campaign);
-    if (campaign) {
-      const { contacts } = campaign.contactList;
-      if (isArray(contacts)) {
-        const contactData = contacts.map(contact => ({
-          contactId: contact.id,
-          campaignId: campaign.id,
-          variables: settings.variables,
-          isGroup: contact.isGroup
-        }));
 
-        const longerIntervalAfter = parseToMilliseconds(
-          settings.longerIntervalAfter
-        );
-        const greaterInterval = parseToMilliseconds(settings.greaterInterval);
-        const messageInterval = settings.messageInterval;
-
-        let baseDelay = campaign.scheduledAt;
-
-        const queuePromises = [];
-        for (let i = 0; i < contactData.length; i++) {
-          baseDelay = addSeconds(
-            baseDelay,
-            i > longerIntervalAfter ? greaterInterval : messageInterval
-          );
-
-          const { contactId, campaignId, variables } = contactData[i];
-          const delay = calculateDelay(
-            i,
-            baseDelay,
-            longerIntervalAfter,
-            greaterInterval,
-            messageInterval
-          );
-
-          const queuePromise = campaignQueue.add(
-            "PrepareContact",
-            { contactId, campaignId, variables, delay },
-            { removeOnComplete: true }
-          );
-          queuePromises.push(queuePromise);
-          logger.info(
-            `Registro enviado pra fila de disparo: Campanha=${campaign.id};Contato=${contacts[i].name};delay=${delay}`
-          );
-        }
-        await Promise.all(queuePromises);
-      }
+    if (!campaign) {
+      logger.error(`Campanha ${id} não encontrada para processamento.`);
+      return;
     }
+
+    if (!campaign.contactList) {
+      logger.warn(`Campanha ${id} sem lista de contatos. Finalizando sem envio.`);
+      await campaign.update({ status: "FINALIZADA", completedAt: moment() });
+      return;
+    }
+
+    const settings = await getSettings(campaign);
+    const { contacts } = campaign.contactList;
+
+    if (!isArray(contacts) || contacts.length === 0) {
+      logger.warn(`Campanha ${id}: lista de contatos está vazia ou sem contatos válidos. Finalizando.`);
+      await campaign.update({ status: "FINALIZADA", completedAt: moment() });
+      return;
+    }
+
+    const contactData = contacts.map(contact => ({
+      contactId: contact.id,
+      campaignId: campaign.id,
+      variables: settings.variables,
+      isGroup: contact.isGroup
+    }));
+
+    const longerIntervalAfter = parseToMilliseconds(settings.longerIntervalAfter);
+    const greaterInterval = parseToMilliseconds(settings.greaterInterval);
+    const messageInterval = settings.messageInterval;
+
+    // Usa o horario atual como base se a campanha já passou do horario agendado
+    const now = new Date();
+    const scheduledAt = campaign.scheduledAt ? new Date(campaign.scheduledAt) : now;
+    let baseDelay = scheduledAt < now ? now : scheduledAt;
+
+    const queuePromises = [];
+    for (let i = 0; i < contactData.length; i++) {
+      baseDelay = addSeconds(
+        baseDelay,
+        i > longerIntervalAfter ? greaterInterval : messageInterval
+      );
+
+      const { contactId, campaignId, variables } = contactData[i];
+      const delay = calculateDelay(
+        i,
+        baseDelay,
+        longerIntervalAfter,
+        greaterInterval,
+        messageInterval
+      );
+
+      const queuePromise = campaignQueue.add(
+        "PrepareContact",
+        { contactId, campaignId, variables, delay },
+        { removeOnComplete: true }
+      );
+      queuePromises.push(queuePromise);
+      logger.info(
+        `Registro enviado pra fila de disparo: Campanha=${campaign.id};Contato=${contacts[i].name};delay=${delay}`
+      );
+    }
+    await Promise.all(queuePromises);
+    logger.info(`Campanha ${id}: ${contactData.length} contatos enfileirados com sucesso.`);
   } catch (err: any) {
     Sentry.captureException(err);
+    logger.error(`Erro ao processar campanha: ${err.message}`);
   }
 }
 
