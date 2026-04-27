@@ -37,7 +37,7 @@ let io: SocketIO;
 export const initIO = (httpServer: Server): SocketIO => {
   io = new SocketIO(httpServer, {
     cors: {
-      origin: true, // Liberar geral para evitar bloqueio no Vercel/Render
+      origin: "*", // Liberar geral para evitar bloqueio no Vercel/Render
       methods: ["GET", "POST"],
       credentials: true,
     },
