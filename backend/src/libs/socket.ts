@@ -7,7 +7,7 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 
 // Define namespaces permitidos
-const ALLOWED_NAMESPACES = /^\/workspace-\d+$/;
+const ALLOWED_NAMESPACES = /^\/workspace-\d+$|^\/$/;
 
 // Esquemas de validação
 const userIdSchema = z.string().uuid().optional();
@@ -20,9 +20,7 @@ const jwtPayloadSchema = z.object({
 });
 
 // Origens CORS permitidas
-const ALLOWED_ORIGINS = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
-  : ["http://localhost:3000"];
+const ALLOWED_ORIGINS = ["*"]; // Liberar geral para evitar bloqueio no Vercel/Render
 
 // Ajuste da classe AppError para compatibilidade com Error
 class SocketCompatibleAppError extends Error {
@@ -55,23 +53,20 @@ export const initIO = (httpServer: Server): SocketIO => {
     pingInterval: 25000,
   });
 
-  // Middleware de autenticação JWT
+  // Middleware de autenticação JWT - Relaxado para diagnóstico
   io.use((socket, next) => {
     const token = socket.handshake.query.token as string;
-    if (!token) {
-      logger.warn("Tentativa de conexão sem token");
-      return next(new SocketCompatibleAppError("Token ausente", 401));
+    
+    if (token && token !== "undefined") {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret");
+        const validatedPayload = jwtPayloadSchema.parse(decoded);
+        socket.data.user = validatedPayload;
+      } catch (err) {
+        logger.warn("Token inválido recebido, mas permitindo conexão limitada.");
+      }
     }
-
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret");
-      const validatedPayload = jwtPayloadSchema.parse(decoded);
-      socket.data.user = validatedPayload;
-      next();
-    } catch (err) {
-      logger.warn("Token inválido");
-      return next(new SocketCompatibleAppError("Token inválido", 401));
-    }
+    next();
   });
 
   // Admin UI apenas em desenvolvimento

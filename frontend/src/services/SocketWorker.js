@@ -16,12 +16,14 @@ class SocketWorker {
   }
 
   configureSocket() {
-    this.socket = io(`${process.env.REACT_APP_BACKEND_URL}/${this?.companyId}` , {
+    const token = JSON.parse(localStorage.getItem("token"));
+    this.socket = io(`${process.env.REACT_APP_BACKEND_URL}/${this?.companyId || ""}` , {
       autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: Infinity,
-      query: { userId: this.userId }
+      transports: ["websocket"],
+      query: { userId: this.userId, token }
     });
 
     this.socket.on("connect", () => {
