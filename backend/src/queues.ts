@@ -668,8 +668,9 @@ async function verifyAndFinalizeCampaign(campaign) {
 async function handleProcessCampaign(job) {
   const { id }: ProcessCampaignData = job.data;
   let io: any;
-  try { io = getIO(); } catch (e) {}
-  if (io) io.emit("campaign-worker-log", { message: `[Motor] Iniciando Campanha ${id}` });
+  try {
+    try { io = getIO(); } catch (e) {}
+    if (io) io.emit("campaign-worker-log", { message: `[Motor] Iniciando Campanha ${id}` });
 
     const campaign = await getCampaign(id);
 
