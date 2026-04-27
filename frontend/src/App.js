@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import api from "./services/api";
+import socketManager from "./services/socket-manager";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ptBR } from "@material-ui/core/locale";
@@ -312,6 +313,23 @@ const App = () => {
       }
     }
     fetchVersionData();
+  }, []);
+
+  useEffect(() => {
+    const socket = socketManager.getSocket();
+
+    socket.on("campaign-worker-log", (data) => {
+      const color = data.message.includes("ERRO") ? "orange" : "#00b4db";
+      console.log(
+        `%c [BACKEND-WORKER] %c ${data.message}`,
+        `background: ${color}; color: #fff; border-radius: 4px; padding: 2px 6px; font-weight: bold;`,
+        "color: inherit; font-family: monospace;"
+      );
+    });
+
+    return () => {
+      socket.off("campaign-worker-log");
+    };
   }, []);
 
   return (
