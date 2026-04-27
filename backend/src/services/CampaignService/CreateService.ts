@@ -48,6 +48,14 @@ const CreateService = async (data: Data): Promise<Campaign> => {
     data.status = "PROGRAMADA";
   }
 
+  // Garantir que campos inteiros não sejam strings vazias (causa erro no Postgres)
+  const intFields = ['tagListId', 'contactListId', 'whatsappId', 'userId', 'queueId', 'fileListId'];
+  intFields.forEach(field => {
+    if ((data as any)[field] === '' || (data as any)[field] === 'Nenhuma' || (data as any)[field] === 'undefined') {
+      (data as any)[field] = null;
+    }
+  });
+
   const record = await Campaign.create(data);
 
   await record.reload({

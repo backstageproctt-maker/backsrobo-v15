@@ -109,7 +109,7 @@ const CampaignModal = ({
     confirmation: false,
     scheduledAt: "",
     contactListId: "",
-    tagListId: "Nenhuma",
+    tagListId: "",
     companyId,
     statusTicket: "closed",
     openTicket: "disabled",
@@ -577,7 +577,7 @@ useEffect(() => {
                         error={touched.tagListId && Boolean(errors.tagListId)}
                         disabled={!campaignEditable}
                       >
-                        {/* <MenuItem value="">Nenhuma</MenuItem> */}
+                        <MenuItem value="">Nenhuma</MenuItem>
                         {Array.isArray(tagLists) &&
                           tagLists.map((tagList) => (
                             <MenuItem key={tagList.id} value={tagList.id}>
