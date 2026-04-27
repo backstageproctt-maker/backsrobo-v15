@@ -17,7 +17,8 @@ class SocketWorker {
 
   configureSocket() {
     const token = JSON.parse(localStorage.getItem("token"));
-    this.socket = io(`${process.env.REACT_APP_BACKEND_URL}/${this?.companyId || ""}` , {
+    const backendUrl = "https://backsrobo-v15.onrender.com";
+    this.socket = io(`${backendUrl}/${this?.companyId || ""}` , {
       autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,
