@@ -318,7 +318,8 @@ const App = () => {
   const [socketStatus, setSocketStatus] = useState("DESCONECTADO");
 
   useEffect(() => {
-    const socket = socketConnection();
+    // Conectar especificamente ao root para logs de diagnóstico
+    const socket = socketConnection(null, null, true); 
 
     socket.on("connect", () => setSocketStatus("CONECTADO"));
     socket.on("disconnect", () => setSocketStatus("DESCONECTADO"));
