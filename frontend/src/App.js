@@ -246,8 +246,8 @@ const App = () => {
   }, [mode]);
 
   useEffect(() => {
-    console.log("|=========== handleSaveSetting ==========|")
-    console.log("APP START")
+    console.log("|========================================|")
+    console.log("%c [DIAGNÓSTICO] %c Conectando ao Backend: " + getBackendUrl(), "background: red; color: white; font-weight: bold;", "color: red;");
     console.log("|========================================|")
    
     

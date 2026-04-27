@@ -8,7 +8,7 @@ function getConfig(name, defaultValue = null) {
 }
 
 export function getBackendUrl() {
-    return getConfig('REACT_APP_BACKEND_URL');
+    return getConfig('REACT_APP_BACKEND_URL', 'https://backsrobo-v15.onrender.com');
 }
 
 export function getHoursCloseTicketsAuto() {
