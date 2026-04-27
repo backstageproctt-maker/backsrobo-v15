@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import api from "./services/api";
-import socketManager from "./services/socket-manager";
+import { socketConnection } from "./services/socket";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ptBR } from "@material-ui/core/locale";
@@ -316,7 +316,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const socket = socketManager.getSocket();
+    const socket = socketConnection();
 
     socket.on("campaign-worker-log", (data) => {
       const color = data.message.includes("ERRO") ? "orange" : "#00b4db";
