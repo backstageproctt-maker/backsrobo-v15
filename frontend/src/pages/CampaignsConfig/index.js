@@ -212,53 +212,77 @@ const CampaignsConfig = () => {
 
             <Paper className={classes.mainPaper} variant="outlined">
 
-              {/* <Typography component={"h1"}>Período de Disparo das Campanhas &nbsp;</Typography>
-        <Paper className={classes.paper}>
-          <TextField
-            id="buttonText"
-            label="Começar o envio que hora?"
-            margin="dense"
-            variant="outlined"
-            fullWidth
-            value={startHour}
-            onChange={(e) => setStartHour(e.target.value)}
-            style={{ marginRight: "10px" }}
-          />
+              <Box className={classes.tabPanelsContainer}>
+                <Typography variant="h6" gutterBottom style={{ fontWeight: 700, color: "#333", marginBottom: "20px" }}>
+                  Período de Disparo das Campanhas
+                </Typography>
+                <Grid spacing={3} container alignItems="center">
+                  <Grid xs={12} md={3} item>
+                    <TextField
+                      label="Início (HH:mm)"
+                      variant="outlined"
+                      fullWidth
+                      value={startHour}
+                      onChange={(e) => setStartHour(e.target.value)}
+                      className={classes.formControl}
+                    />
+                  </Grid>
+                  <Grid xs={12} md={3} item>
+                    <TextField
+                      label="Fim (HH:mm)"
+                      variant="outlined"
+                      fullWidth
+                      value={endHour}
+                      onChange={(e) => setEndHour(e.target.value)}
+                      className={classes.formControl}
+                    />
+                  </Grid>
+                  <Grid xs={6} md={2} item>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={sabado} 
+                          onChange={(e) => setSabado(e.target.checked)} 
+                          name="sabado" 
+                          color="primary"
+                        />
+                      }
+                      label="Sábado"
+                    />
+                  </Grid>
+                  <Grid xs={6} md={2} item>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={domingo} 
+                          onChange={(e) => setDomingo(e.target.checked)} 
+                          name="domingo" 
+                          color="primary"
+                        />
+                      }
+                      label="Domingo"
+                    />
+                  </Grid>
+                  <Grid xs={12} md={2} item style={{ textAlign: 'right' }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleSaveTimeMass}
+                      sx={{
+                        background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                        color: "#fff",
+                        fontWeight: 700,
+                        borderRadius: "12px",
+                        padding: "10px 20px",
+                        boxShadow: "0 8px 20px rgba(16, 185, 129, 0.2)",
+                      }}
+                    >
+                      Salvar Horário
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Box>
 
-          <TextField
-            id="buttonText"
-            label="Terminar o envio que hora?"
-            margin="dense"
-            variant="outlined"
-            fullWidth
-            value={endHour}
-            onChange={(e) => setEndHour(e.target.value)}
-            style={{ marginRight: "10px" }}
-          />
-
-          <FormControlLabel
-            control={<Checkbox checked={sabado} onChange={handleChange} name="sabado" />}
-            label="Sábado"
-          />
-
-          <FormControlLabel
-            control={<Checkbox checked={domingo} onChange={handleChange} name="domingo" />}
-            label="Domigo"
-          />
-
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            onClick={() => {
-              handleSaveTimeMass();
-            }}
-            style={{ marginRight: "10px" }}
-          >
-            Salvar
-          </Button>
-
-        </Paper> */}
+              <Divider style={{ margin: "20px 0" }} />
 
               <Box className={classes.tabPanelsContainer}>
                 <Grid spacing={1} container>

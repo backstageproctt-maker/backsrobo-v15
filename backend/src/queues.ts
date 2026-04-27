@@ -404,18 +404,20 @@ async function handleVerifyCampaigns(job?: any) {
             logger.info(`[Worker] Disparando agora: ${campaign.name} (ID: ${campaign.id})`);
             await campaign.update({ status: "EM_ANDAMENTO" });
 
+            logger.info(`[Worker] Adicionando campanha ${campaign.id} à fila Bull...`);
             await campaignQueue.add(
               "ProcessCampaign",
               { id: campaign.id, delay: Math.max(0, delay) },
               {
                 priority: 3,
-                jobId: `campaign-${campaign.id}-${nowTime}`, // JobId único para evitar colisão
+                jobId: `campaign-${campaign.id}-${nowTime}`,
                 removeOnComplete: true,
                 removeOnFail: true
               }
             );
+            logger.info(`[Worker] Campanha ${campaign.id} adicionada com sucesso.`);
           } else {
-            logger.info(`[Worker] Campanha ${campaign.id} ainda está no futuro (delay > 5min).`);
+            logger.info(`[Worker] Campanha ${campaign.id} ainda está no futuro (agendada para ${scheduledAt.format("HH:mm")}).`);
           }
         } catch (err) {
           logger.error(`[Worker] Erro ao processar item da campanha ${campaign.id}: ${err.message}`);
@@ -634,65 +636,46 @@ function getProcessedMessage(msg: string, variables: any[], contact: any) {
 }
 
 const checkerWeek = async () => {
-  const sab = moment().day() === 6;
-  const dom = moment().day() === 0;
+  const day = moment().day(); // 0 = Domingo, 6 = Sábado
+  
+  const settingSabado = await CampaignSetting.findOne({ where: { key: "sabado" } });
+  const settingDomingo = await CampaignSetting.findOne({ where: { key: "domingo" } });
 
-  const sabado = await CampaignSetting.findOne({
-    where: { key: "sabado" }
-  });
-
-  const domingo = await CampaignSetting.findOne({
-    where: { key: "domingo" }
-  });
-
-  if (sabado?.value === "false" && sab) {
+  // Se for Sábado e estiver explicitamente desabilitado
+  if (day === 6 && settingSabado?.value === "false") {
+    logger.info("[CheckerWeek] Sábado desabilitado. Pausando fila.");
     messageQueue.pause();
-    return true;
+    return false; // Bloqueado
   }
 
-  if (domingo?.value === "false" && dom) {
+  // Se for Domingo e estiver explicitamente desabilitado
+  if (day === 0 && settingDomingo?.value === "false") {
+    logger.info("[CheckerWeek] Domingo desabilitado. Pausando fila.");
     messageQueue.pause();
-    return true;
+    return false; // Bloqueado
   }
 
   messageQueue.resume();
-  return false;
+  return true; // Liberado
 };
 
 const checkTime = async () => {
-  const startHour = await CampaignSetting.findOne({
-    where: {
-      key: "startHour"
-    }
-  });
+  const startHourSetting = await CampaignSetting.findOne({ where: { key: "startHour" } });
+  const endHourSetting = await CampaignSetting.findOne({ where: { key: "endHour" } });
 
-  const endHour = await CampaignSetting.findOne({
-    where: {
-      key: "endHour"
-    }
-  });
+  if (!startHourSetting || !endHourSetting) return true;
 
-  const hour = (startHour.value as unknown) as number;
-  const endHours = (endHour.value as unknown) as number;
+  const startHour = startHourSetting.value; // "08:00"
+  const endHour = endHourSetting.value;     // "19:00"
+  const timeNow = moment().format("HH:mm");
 
-  const timeNow = (moment().format("HH:mm") as unknown) as number;
-
-  if (timeNow <= endHours && timeNow >= hour) {
+  if (timeNow >= startHour && timeNow <= endHour) {
     messageQueue.resume();
-
     return true;
   }
 
-  logger.info(
-    `Envio inicia as ${hour} e termina as ${endHours}, hora atual ${timeNow} não está dentro do horário`
-  );
-  messageQueue.clean(0, "delayed");
-  messageQueue.clean(0, "wait");
-  messageQueue.clean(0, "active");
-  messageQueue.clean(0, "completed");
-  messageQueue.clean(0, "failed");
+  logger.info(`[CheckTime] Fora do horário permitido (${startHour} - ${endHour}). Hora atual: ${timeNow}`);
   messageQueue.pause();
-
   return false;
 };
 
