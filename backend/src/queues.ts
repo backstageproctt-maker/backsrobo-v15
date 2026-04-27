@@ -3,8 +3,7 @@ import BullQueue from "bull";
 import { MessageData, SendMessage } from "./helpers/SendMessage";
 import Whatsapp from "./models/Whatsapp";
 import logger from "./utils/logger";
-import moment from "moment-timezone";
-moment.tz.setDefault("America/Sao_Paulo");
+import moment from "moment";
 import Schedule from "./models/Schedule";
 import { Op, QueryTypes, Sequelize } from "sequelize";
 import GetDefaultWhatsApp from "./helpers/GetDefaultWhatsApp";
@@ -388,11 +387,10 @@ async function handleVerifyCampaigns(job?: any) {
   }
 
   try {
-    const now = moment().tz("America/Sao_Paulo");
+    const now = moment();
     
-    // Emitir log para o root E para possíveis namespaces
     if (io) {
-      const logMsg = { message: `[Vigia] TÔ VIVO! | Servidor: ${now.format("HH:mm:ss")} | Fuso: ${process.env.TZ}` };
+      const logMsg = { message: `[Vigia] TÔ VIVO! | Servidor: ${now.format("HH:mm:ss")} | TZ: ${process.env.TZ}` };
       io.emit("campaign-worker-log", logMsg);
     }
 
@@ -407,8 +405,7 @@ async function handleVerifyCampaigns(job?: any) {
     if (io && campaigns.length > 0) io.emit("campaign-worker-log", { message: `[Vigia] Encontradas: ${campaigns.length}` });
 
     for (const campaign of campaigns) {
-      // Forçar interpretação da data do banco como São Paulo
-      const scheduledDate = moment.tz(campaign.scheduledAt, "America/Sao_Paulo");
+      const scheduledDate = moment(campaign.scheduledAt);
       const diff = scheduledDate.diff(now, 'seconds');
 
       if (io) {

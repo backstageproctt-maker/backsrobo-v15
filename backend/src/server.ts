@@ -1,9 +1,6 @@
 // Forçar fuso horário de Brasília ANTES de qualquer import
 process.env.TZ = 'America/Sao_Paulo';
-import moment from "moment-timezone";
-moment.tz.setDefault("America/Sao_Paulo");
-
-import 'dotenv/config';
+import moment from "moment";
 import gracefulShutdown from "http-graceful-shutdown";
 import app from "./app";
 import { initIO } from "./libs/socket";
@@ -30,6 +27,14 @@ const server = app.listen(PORT, HOST, async () => {
     // 2. Tenta iniciar cada uma delas
     if (whatsapps.length > 0) {
       for (const wpp of whatsapps) {
+        // Cálculo manual de fuso (UTC - 3) se o servidor estiver em UTC
+        const now = moment().subtract(0, 'hours'); // O TZ=America/Sao_Paulo já deve cuidar disso no Linux
+        
+        if (typeof io !== 'undefined') {
+          const logMsg = { message: `[Vigia] TÔ VIVO! | Servidor: ${now.format("HH:mm:ss")} | TZ: ${process.env.TZ}` };
+          io.emit("campaign-worker-log", logMsg);
+        }    
+        
         // Adiciona um pequeno atraso para não sobrecarregar a API do WhatsApp
         await new Promise(r => setTimeout(r, 1000));
         logger.info(`Tentando reconectar: ${wpp.name}`);
