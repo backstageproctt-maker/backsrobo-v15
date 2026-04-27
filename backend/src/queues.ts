@@ -375,36 +375,35 @@ async function handleVerifyCampaigns(job?: any) {
   lastProcessTime = nowTime;
 
   try {
-    const nowUtc = moment().utc();
-    logger.info(`[Worker] Verificando campanhas. Agora (UTC): ${nowUtc.format("YYYY-MM-DD HH:mm:ss")}`);
-
+    const now = new Date();
+    // Procura por TUDO que for PROGRAMADA e que o agendamento seja menor que amanhã (pega atrasadas e próximas)
     const campaigns = await Campaign.findAll({
       where: {
         status: "PROGRAMADA",
         scheduledAt: {
           [Op.not]: null,
-          [Op.lte]: moment().add(1, "hour").toDate()
+          [Op.lte]: moment().add(1, "day").toDate()
         }
       },
       attributes: ["id", "name", "scheduledAt", "companyId", "status"]
     });
 
     if (campaigns.length > 0) {
-      logger.info(`[Worker] ${campaigns.length} campanhas encontradas para analisar.`);
+      logger.info(`[Worker] ${campaigns.length} campanhas encontradas para disparar.`);
 
       for (const campaign of campaigns) {
         try {
-          const scheduledAt = moment(campaign.scheduledAt).utc();
-          const delay = scheduledAt.diff(nowUtc, "milliseconds");
+          // Compara sem conversão complexa de UTC - se já passou da hora, dispara
+          const scheduledDate = new Date(campaign.scheduledAt);
+          const delay = scheduledDate.getTime() - now.getTime();
 
-          logger.info(`[Worker] Analisando: ${campaign.name} (ID: ${campaign.id}) | Agendado: ${scheduledAt.format("YYYY-MM-DD HH:mm:ss")} | Delay: ${delay}ms`);
+          logger.info(`[Worker] Campanha: ${campaign.name} (ID: ${campaign.id}) | Agendada para: ${moment(campaign.scheduledAt).format("YYYY-MM-DD HH:mm:ss")} | Delay: ${delay}ms`);
 
-          // Se o agendamento já passou ou é em menos de 5 minutos
-          if (delay <= 5 * 60 * 1000) {
-            logger.info(`[Worker] Disparando agora: ${campaign.name} (ID: ${campaign.id})`);
+          // Se a hora já passou ou faltam menos de 10 minutos
+          if (delay <= 10 * 60 * 1000) {
+            logger.info(`[Worker] INICIANDO AGORA: ${campaign.name} (ID: ${campaign.id})`);
             await campaign.update({ status: "EM_ANDAMENTO" });
 
-            logger.info(`[Worker] Adicionando campanha ${campaign.id} à fila Bull...`);
             await campaignQueue.add(
               "ProcessCampaign",
               { id: campaign.id, delay: Math.max(0, delay) },
@@ -415,12 +414,9 @@ async function handleVerifyCampaigns(job?: any) {
                 removeOnFail: true
               }
             );
-            logger.info(`[Worker] Campanha ${campaign.id} adicionada com sucesso.`);
-          } else {
-            logger.info(`[Worker] Campanha ${campaign.id} ainda está no futuro (agendada para ${scheduledAt.format("HH:mm")}).`);
           }
         } catch (err) {
-          logger.error(`[Worker] Erro ao processar item da campanha ${campaign.id}: ${err.message}`);
+          logger.error(`[Worker] Erro no item ${campaign.id}: ${err.message}`);
         }
       }
     }

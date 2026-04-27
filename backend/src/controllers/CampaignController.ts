@@ -22,6 +22,7 @@ import Ticket from "../models/Ticket";
 import { CancelService } from "../services/CampaignService/CancelService";
 import { RestartService } from "../services/CampaignService/RestartService";
 import ContactTag from "../models/ContactTag";
+import { campaignQueue } from "../queues";
 
 
 type IndexQuery = {
@@ -153,6 +154,41 @@ export const restart = async (
   await RestartService(+id);
 
   return res.status(204).json({ message: "Reinício dos disparos" });
+};
+
+export const start = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { id } = req.params;
+  const { companyId } = req.user;
+
+  const campaign = await Campaign.findByPk(id);
+
+  if (!campaign) {
+    throw new AppError("Campanha não encontrada", 404);
+  }
+
+  await campaign.update({ status: "EM_ANDAMENTO" });
+
+  await campaignQueue.add(
+    "ProcessCampaign",
+    { id: campaign.id, delay: 0 },
+    {
+      priority: 3,
+      jobId: `campaign-${campaign.id}-${Date.now()}`,
+      removeOnComplete: true,
+      removeOnFail: true
+    }
+  );
+
+  const io = getIO();
+  io.of(String(companyId)).emit(`company-${companyId}-campaign`, {
+    action: "update",
+    record: campaign
+  });
+
+  return res.status(200).json({ message: "Disparo iniciado manualmente" });
 };
 
 export const remove = async (
