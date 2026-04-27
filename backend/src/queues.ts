@@ -418,18 +418,25 @@ async function handleVerifyCampaigns(job?: any) {
       const diff = scheduledDate.diff(now, 'seconds');
 
       if (io) {
-        const msg = { message: `[Vigia] Campanha: "${campaign.name}" | Agendado: ${scheduledDate.format("HH:mm:ss")} | Falta: ${diff}s` };
+        const msg = { message: `[Vigia] Campanha: "${campaign.name}" | Agendado: ${scheduledDate.format("DD/MM/YYYY HH:mm:ss")} | Status: ${campaign.status} | Falta: ${diff}s` };
         io.emit("campaign-worker-log", msg);
       }
 
-      if (diff <= 120) {
+      // Se a hora já passou ou falta menos de 30 segundos, dispara
+      if (diff <= 30) {
         if (io) io.emit("campaign-worker-log", { message: `[Vigia] >>> DISPARANDO AGORA: ${campaign.name} <<<` });
+        
+        // Garante que o status mude para evitar re-processamento imediato
         await campaign.update({ status: "EM_ANDAMENTO" });
 
         await campaignQueue.add(
           "ProcessCampaign",
           { id: campaign.id, delay: 0 },
-          { priority: 1, jobId: `c-${campaign.id}-${Date.now()}` }
+          { 
+            priority: 1, 
+            jobId: `c-${campaign.id}-${Date.now()}`,
+            removeOnComplete: true 
+          }
         );
       }
     }
@@ -709,9 +716,9 @@ async function handleProcessCampaign(job) {
       isGroup: contact.isGroup
     }));
 
-    const longerIntervalAfter = parseToMilliseconds(settings.longerIntervalAfter);
-    const greaterInterval = parseToMilliseconds(settings.greaterInterval);
-    const messageInterval = settings.messageInterval;
+    const longerIntervalCount = settings.longerIntervalAfter; // quantidade de contatos
+    const greaterInterval = settings.greaterInterval; // segundos
+    const messageInterval = settings.messageInterval; // segundos
 
     // Usa o horario atual como base se a campanha já passou do horario agendado
     const now = new Date();
@@ -720,23 +727,19 @@ async function handleProcessCampaign(job) {
 
     const queuePromises = [];
     for (let i = 0; i < contactData.length; i++) {
-      baseDelay = addSeconds(
-        baseDelay,
-        i > longerIntervalAfter ? greaterInterval : messageInterval
-      );
+      // Adiciona o intervalo base (em segundos)
+      const intervalToAdd = i > longerIntervalCount ? greaterInterval : messageInterval;
+      baseDelay = addSeconds(baseDelay, intervalToAdd);
 
       const { contactId, campaignId, variables } = contactData[i];
-      const delay = calculateDelay(
-        i,
-        baseDelay,
-        longerIntervalAfter,
-        greaterInterval,
-        messageInterval
-      );
+      const delay = differenceInSeconds(baseDelay, new Date()) * 1000;
+      
+      // Garante que o delay não seja negativo
+      const finalDelay = delay < 0 ? 0 : delay;
 
       const queuePromise = campaignQueue.add(
         "PrepareContact",
-        { contactId, campaignId, variables, delay },
+        { contactId, campaignId, variables, delay: finalDelay },
         { removeOnComplete: true }
       );
       queuePromises.push(queuePromise);

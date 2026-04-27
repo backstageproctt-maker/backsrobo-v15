@@ -65,12 +65,19 @@ export async function ImportContacts(
     for (let newContact of contactList) {
       try {
         const response = await CheckContactNumber(newContact.number, companyId);
-        newContact.isWhatsappValid = response ? true : false;
-        const number = response;
-        newContact.number = number;
+        if (response) {
+          newContact.isWhatsappValid = true;
+          newContact.number = response;
+        } else {
+          // Se não retornou nada, deixamos como null para tentar validar no momento do disparo
+          newContact.isWhatsappValid = null;
+        }
         await newContact.save();
       } catch (e) {
-        logger.error(`Número de contato inválido: ${newContact.number}`);
+        logger.error(`Erro ao validar número ${newContact.number}: ${e.message}`);
+        // Mantém como null em caso de erro para não excluir da campanha
+        newContact.isWhatsappValid = null;
+        await newContact.save();
       }
     }
   }
