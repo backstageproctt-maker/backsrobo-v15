@@ -2,17 +2,11 @@ import io from "socket.io-client";
 
 class SocketWorker {
   constructor(companyId , userId) {
-    if (!SocketWorker.instance) {
-      this.companyId = companyId
-      this.userId = userId
-      this.socket = null;
-      this.configureSocket();
-      this.eventListeners = {}; // Armazena os ouvintes de eventos registrados
-      SocketWorker.instance = this;
-
-    } 
-
-    return SocketWorker.instance;
+    this.companyId = companyId
+    this.userId = userId
+    this.socket = null;
+    this.eventListeners = {};
+    this.configureSocket();
   }
 
   configureSocket() {
