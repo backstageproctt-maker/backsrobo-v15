@@ -365,55 +365,42 @@ async function handleSendScheduledMessage(job) {
 }
 
 async function handleVerifyCampaigns(job?: any) {
-  const nowTime = Date.now();
-  // Se estiver processando há mais de 2 minutos, reseta o flag (segurança)
-  if (isProcessing && (nowTime - lastProcessTime) < 2 * 60 * 1000) {
-    return;
-  }
-
-  isProcessing = true;
-  lastProcessTime = nowTime;
-
   try {
     const now = new Date();
-    // Procura por TUDO que for PROGRAMADA e que o agendamento seja menor que amanhã (pega atrasadas e próximas)
+    logger.info(`[Worker] Verificação iniciada às ${moment().format("HH:mm:ss")}`);
+
     const campaigns = await Campaign.findAll({
       where: {
-        status: "PROGRAMADA",
-        scheduledAt: {
-          [Op.not]: null,
-          [Op.lte]: moment().add(1, "day").toDate()
-        }
+        status: "PROGRAMADA"
       },
       attributes: ["id", "name", "scheduledAt", "companyId", "status"]
     });
 
     if (campaigns.length > 0) {
-      logger.info(`[Worker] ${campaigns.length} campanhas encontradas para disparar.`);
+      logger.info(`[Worker] ${campaigns.length} campanhas pendentes encontradas.`);
 
       for (const campaign of campaigns) {
         try {
-          // Compara sem conversão complexa de UTC - se já passou da hora, dispara
           const scheduledDate = new Date(campaign.scheduledAt);
-          const delay = scheduledDate.getTime() - now.getTime();
+          const diff = scheduledDate.getTime() - now.getTime();
 
-          logger.info(`[Worker] Campanha: ${campaign.name} (ID: ${campaign.id}) | Agendada para: ${moment(campaign.scheduledAt).format("YYYY-MM-DD HH:mm:ss")} | Delay: ${delay}ms`);
-
-          // Se a hora já passou ou faltam menos de 10 minutos
-          if (delay <= 10 * 60 * 1000) {
-            logger.info(`[Worker] INICIANDO AGORA: ${campaign.name} (ID: ${campaign.id})`);
+          // Se a hora já chegou ou passou (ou falta menos de 1 minuto)
+          if (diff <= 60 * 1000) {
+            logger.info(`[Worker] DISPARANDO: ${campaign.name} (ID: ${campaign.id})`);
             await campaign.update({ status: "EM_ANDAMENTO" });
 
             await campaignQueue.add(
               "ProcessCampaign",
-              { id: campaign.id, delay: Math.max(0, delay) },
+              { id: campaign.id, delay: 0 },
               {
                 priority: 3,
-                jobId: `campaign-${campaign.id}-${nowTime}`,
+                jobId: `campaign-${campaign.id}-${Date.now()}`,
                 removeOnComplete: true,
                 removeOnFail: true
               }
             );
+          } else {
+             logger.info(`[Worker] Campanha ${campaign.id} aguardando horário (${moment(campaign.scheduledAt).format("HH:mm")}).`);
           }
         } catch (err) {
           logger.error(`[Worker] Erro no item ${campaign.id}: ${err.message}`);
@@ -422,7 +409,7 @@ async function handleVerifyCampaigns(job?: any) {
     }
   } catch (err: any) {
     Sentry.captureException(err);
-    logger.error(`[Worker] Erro geral na verificação de campanhas: ${err.message}`);
+    logger.error(`[Worker] Erro na verificação: ${err.message}`);
   } finally {
     isProcessing = false;
   }
@@ -630,50 +617,6 @@ function getProcessedMessage(msg: string, variables: any[], contact: any) {
 
   return finalMessage;
 }
-
-const checkerWeek = async () => {
-  const day = moment().day(); // 0 = Domingo, 6 = Sábado
-  
-  const settingSabado = await CampaignSetting.findOne({ where: { key: "sabado" } });
-  const settingDomingo = await CampaignSetting.findOne({ where: { key: "domingo" } });
-
-  // Se for Sábado e estiver explicitamente desabilitado
-  if (day === 6 && settingSabado?.value === "false") {
-    logger.info("[CheckerWeek] Sábado desabilitado. Pausando fila.");
-    messageQueue.pause();
-    return false; // Bloqueado
-  }
-
-  // Se for Domingo e estiver explicitamente desabilitado
-  if (day === 0 && settingDomingo?.value === "false") {
-    logger.info("[CheckerWeek] Domingo desabilitado. Pausando fila.");
-    messageQueue.pause();
-    return false; // Bloqueado
-  }
-
-  messageQueue.resume();
-  return true; // Liberado
-};
-
-const checkTime = async () => {
-  const startHourSetting = await CampaignSetting.findOne({ where: { key: "startHour" } });
-  const endHourSetting = await CampaignSetting.findOne({ where: { key: "endHour" } });
-
-  if (!startHourSetting || !endHourSetting) return true;
-
-  const startHour = startHourSetting.value; // "08:00"
-  const endHour = endHourSetting.value;     // "19:00"
-  const timeNow = moment().format("HH:mm");
-
-  if (timeNow >= startHour && timeNow <= endHour) {
-    messageQueue.resume();
-    return true;
-  }
-
-  logger.info(`[CheckTime] Fora do horário permitido (${startHour} - ${endHour}). Hora atual: ${timeNow}`);
-  messageQueue.pause();
-  return false;
-};
 
 export function randomValue(min, max) {
   return Math.floor(Math.random() * max) + min;
