@@ -218,16 +218,14 @@ const SettingsCustom = () => {
                 )}
               />
               <TabPanel className={classes.container} value={tab} name={"options"}>
-                {!loading && (
-                  <Options
-                    settings={settings}
-                    oldSettings={oldSettings}
-                    user={user}
-                    scheduleTypeChanged={(value) =>
-                      setSchedulesEnabled(value === "company")
-                    }
-                  />
-                )}
+                <Options
+                  settings={settings}
+                  oldSettings={oldSettings}
+                  user={user}
+                  scheduleTypeChanged={(value) =>
+                    setSchedulesEnabled(value === "company")
+                  }
+                />
               </TabPanel>
             </Paper>
           </Paper>

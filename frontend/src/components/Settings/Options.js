@@ -999,9 +999,12 @@ export default function Options(props) {
             </FormHelperText>
           </FormControl>
         </Grid>
-        {/* <Grid xs={12} sm={6} md={4} item>
+        {/* USAR CARTEIRA DE CLIENTES */}
+        <Grid xs={12} sm={6} md={4} item>
           <FormControl className={classes.selectContainer}>
-            <InputLabel id="DirectTicketsToWallets-label"> {i18n.t("settings.settings.options.DirectTicketsToWallets")}</InputLabel>
+            <InputLabel id="DirectTicketsToWallets-label">
+              Direcionar tickets para carteira
+            </InputLabel>
             <Select
               labelId="DirectTicketsToWallets-label"
               value={directTicketsToWallets}
@@ -1016,7 +1019,51 @@ export default function Options(props) {
               {loadingDirectTicketsToWallets && i18n.t("settings.settings.options.updating")}
             </FormHelperText>
           </FormControl>
-        </Grid> */}
+        </Grid>
+
+        {/* FECHAR TICKET AO TRANSFERIR */}
+        <Grid xs={12} sm={6} md={4} item>
+          <FormControl className={classes.selectContainer}>
+            <InputLabel id="closeTicketOnTransfer-label">
+              Fechar ticket ao transferir
+            </InputLabel>
+            <Select
+              labelId="closeTicketOnTransfer-label"
+              value={closeTicketOnTransfer}
+              onChange={async (e) => {
+                handleCloseTicketOnTransfer(e.target.value);
+              }}
+            >
+              <MenuItem value={false}>{i18n.t("settings.settings.options.disabled")}</MenuItem>
+              <MenuItem value={true}>{i18n.t("settings.settings.options.enabled")}</MenuItem>
+            </Select>
+            <FormHelperText>
+              {loadingCloseTicketOnTransfer && i18n.t("settings.settings.options.updating")}
+            </FormHelperText>
+          </FormControl>
+        </Grid>
+
+        {/* NOTIFICAÇÃO DE TICKETS PENDENTES */}
+        <Grid xs={12} sm={6} md={4} item>
+          <FormControl className={classes.selectContainer}>
+            <InputLabel id="showNotificationPending-label">
+              Notificar tickets pendentes
+            </InputLabel>
+            <Select
+              labelId="showNotificationPending-label"
+              value={showNotificationPending}
+              onChange={async (e) => {
+                handleShowNotificationPending(e.target.value);
+              }}
+            >
+              <MenuItem value={false}>{i18n.t("settings.settings.options.disabled")}</MenuItem>
+              <MenuItem value={true}>{i18n.t("settings.settings.options.enabled")}</MenuItem>
+            </Select>
+            <FormHelperText>
+              {loadingShowNotificationPending && i18n.t("settings.settings.options.updating")}
+            </FormHelperText>
+          </FormControl>
+        </Grid>
       </Grid>
       <br></br>
       {/*-----------------LGPD-----------------*/}

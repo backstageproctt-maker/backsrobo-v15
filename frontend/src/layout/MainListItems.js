@@ -99,14 +99,16 @@ const useStyles = makeStyles((theme) => ({
   listItem: {
     height: "44px",
     width: "auto",
-    margin: "2px 10px",
+    margin: "4px 8px",
     borderRadius: "8px",
+    padding: "0 8px",
     "&:hover": {
       backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
     "&.active": {
       backgroundColor: "rgba(255, 255, 255, 0.2)",
     },
+    display: "flex",
     justifyContent: "center",
   },
   listItemText: {
@@ -121,13 +123,14 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: "50%",
-    height: 32,
-    width: 32,
+    borderRadius: "8px",
+    height: 36,
+    width: 36,
     backgroundColor: "transparent",
     color: "#FFFFFF",
+    transition: "all 0.2s",
     "& .MuiSvgIcon-root": {
-      fontSize: "1.4rem",
+      fontSize: "1.5rem",
     },
   },
   listSubheader: {
@@ -183,8 +186,13 @@ function ListItemLink(props) {
           style={small ? { paddingLeft: collapsed ? "0" : "32px" } : {}}
         >
           {icon ? (
-            <ListItemIcon style={{ minWidth: collapsed ? "0" : "40px", justifyContent: "center" }}>
-              <div className={classes.iconHoverActive} style={{ color: "#FFFFFF" }}>
+            <ListItemIcon style={{ 
+              minWidth: "auto", 
+              justifyContent: "center",
+              marginRight: collapsed ? 0 : 16,
+              color: "inherit"
+            }}>
+              <div className={classes.iconHoverActive}>
                 {icon}
               </div>
             </ListItemIcon>
@@ -486,8 +494,13 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         onClick={() => handleOpenMenu("operations")}
         className={`${classes.listItem} ${isOperationsActive ? "active" : ""}`}
       >
-        <ListItemIcon style={{ minWidth: collapsed ? "44px" : "40px", justifyContent: "center", margin: collapsed ? "0" : "inherit" }}>
-          <div className={classes.iconHoverActive} style={{ color: "#FFFFFF" }}>
+        <ListItemIcon style={{ 
+          minWidth: "auto", 
+          justifyContent: "center", 
+          marginRight: collapsed ? 0 : 16,
+          color: "inherit"
+        }}>
+          <div className={classes.iconHoverActive}>
             <ListIcon />
           </div>
         </ListItemIcon>
@@ -578,8 +591,13 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 onClick={() => handleOpenMenu("campaigns")}
                 className={`${classes.listItem} ${isCampaignRouteActive ? "active" : ""}`}
               >
-                <ListItemIcon style={{ minWidth: collapsed ? "44px" : "40px", justifyContent: "center", margin: collapsed ? "0" : "inherit" }}>
-                  <div className={classes.iconHoverActive} style={{ color: "#FFFFFF" }}>
+                <ListItemIcon style={{ 
+                  minWidth: "auto", 
+                  justifyContent: "center", 
+                  marginRight: collapsed ? 0 : 16,
+                  color: "inherit"
+                }}>
+                  <div className={classes.iconHoverActive}>
                     <EventAvailableIcon />
                   </div>
                 </ListItemIcon>
@@ -642,8 +660,13 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               onClick={() => handleOpenMenu("flow")}
               className={`${classes.listItem} ${isFlowbuilderRouteActive ? "active" : ""}`}
             >
-              <ListItemIcon style={{ minWidth: collapsed ? "44px" : "40px", justifyContent: "center", margin: collapsed ? "0" : "inherit" }}>
-                <div className={classes.iconHoverActive} style={{ color: "#FFFFFF" }}>
+              <ListItemIcon style={{ 
+                minWidth: "auto", 
+                justifyContent: "center", 
+                marginRight: collapsed ? 0 : 16,
+                color: "inherit"
+              }}>
+                <div className={classes.iconHoverActive}>
                   <Webhook />
                 </div>
               </ListItemIcon>
@@ -694,8 +717,13 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               onClick={() => handleOpenMenu("admin")}
               className={`${classes.listItem} ${isAdminActive ? "active" : ""}`}
             >
-              <ListItemIcon style={{ minWidth: collapsed ? "44px" : "40px", justifyContent: "center", margin: collapsed ? "0" : "inherit" }}>
-                <div className={classes.iconHoverActive} style={{ color: "#FFFFFF" }}>
+              <ListItemIcon style={{ 
+                minWidth: "auto", 
+                justifyContent: "center", 
+                marginRight: collapsed ? 0 : 16,
+                color: "inherit"
+              }}>
+                <div className={classes.iconHoverActive}>
                   <SettingsApplications />
                 </div>
               </ListItemIcon>
