@@ -266,7 +266,8 @@ useEffect(() => {
 
           Object.entries(data).forEach(([key, value]) => {
             if (key === "scheduledAt" && value !== "" && value !== null) {
-              prevCampaignData[key] = moment(value).format("YYYY-MM-DDTHH:mm");
+              // Converter UTC do banco para horário local do Brasil
+              prevCampaignData[key] = moment(value).local().format("YYYY-MM-DDTHH:mm");
             } else {
               prevCampaignData[key] = value === null ? "" : value;
             }
@@ -318,7 +319,8 @@ useEffect(() => {
 
       Object.entries(values).forEach(([key, value]) => {
         if (key === "scheduledAt" && value !== "" && value !== null) {
-          dataValues[key] = moment(value).format("YYYY-MM-DD HH:mm:ss");
+          // Converter horário local do Brasil para UTC antes de enviar
+          dataValues[key] = moment(value).toISOString();
         } else {
           dataValues[key] = value === "" ? null : value;
         }

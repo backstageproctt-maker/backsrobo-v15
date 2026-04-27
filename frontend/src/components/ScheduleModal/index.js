@@ -211,7 +211,8 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 
 					const { data } = await api.get(`/schedules/${scheduleId}`);
 					setSchedule(prevState => {
-						return { ...prevState, ...data, sendAt: moment(data.sendAt).format('YYYY-MM-DDTHH:mm') };
+						// Converter UTC do banco para horário local do Brasil para exibição
+						return { ...prevState, ...data, sendAt: moment(data.sendAt).local().format('YYYY-MM-DDTHH:mm') };
 					});
 					console.log(data)
 					if (data.whatsapp) {
@@ -285,8 +286,15 @@ const ScheduleModal = ({ open, onClose, scheduleId, contactId, cleanContact, rel
 	};
 	const handleSaveSchedule = async values => {
 		const scheduleData = {
-			...values, userId: user.id, whatsappId: selectedWhatsapps, ticketUserId: selectedUser?.id || null,
-			queueId: selectedQueue || null, intervalo: intervalo || 1, tipoDias: tipoDias || 4
+			...values,
+			userId: user.id,
+			whatsappId: selectedWhatsapps,
+			ticketUserId: selectedUser?.id || null,
+			queueId: selectedQueue || null,
+			intervalo: intervalo || 1,
+			tipoDias: tipoDias || 4,
+			// Converter horário local do Brasil para UTC antes de enviar ao backend
+			sendAt: values.sendAt ? moment(values.sendAt).toISOString() : values.sendAt
 		};
 
 		try {
