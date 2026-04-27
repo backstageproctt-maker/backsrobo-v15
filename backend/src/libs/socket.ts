@@ -53,7 +53,8 @@ export const initIO = (httpServer: Server): SocketIO => {
     pingInterval: 25000,
   });
 
-  // Middleware de autenticação JWT - Relaxado para diagnóstico
+  // Middleware de autenticação JWT - DESATIVADO PARA DIAGNÓSTICO TOTAL
+  /*
   io.use((socket, next) => {
     const token = socket.handshake.query.token as string;
     
@@ -68,6 +69,7 @@ export const initIO = (httpServer: Server): SocketIO => {
     }
     next();
   });
+  */
 
   // Admin UI apenas em desenvolvimento
   const isAdminEnabled = process.env.SOCKET_ADMIN === "true" && process.env.NODE_ENV !== "production";
@@ -90,14 +92,9 @@ export const initIO = (httpServer: Server): SocketIO => {
     logger.warn("Credenciais de administrador ausentes, Admin UI não inicializado");
   }
 
-  // Namespaces dinâmicos com validação
+  // Namespaces dinâmicos - ABERTO PARA DIAGNÓSTICO
   const workspaces = io.of((name, auth, next) => {
-    if (ALLOWED_NAMESPACES.test(name)) {
-      next(null, true);
-    } else {
-      logger.warn(`Tentativa de conexão a namespace inválido: ${name}`);
-      next(new SocketCompatibleAppError("Namespace inválido", 403), false);
-    }
+    next(null, true);
   });
 
   workspaces.on("connection", (socket) => {
