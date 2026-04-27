@@ -77,6 +77,9 @@ export const initIO = (httpServer: Server): SocketIO => {
 
     logger.info(`Cliente conectado ao namespace ${socket.nsp.name} (IP: ${clientIp})`);
 
+    // Mensagem de boas-vindas para confirmar a conexão de logs
+    socket.emit("campaign-worker-log", { message: `[Vigia] CONEXÃO ESTABELECIDA! Estou monitorando suas campanhas...` });
+
     socket.on("joinChatBox", (ticketId: string, callback: (error?: string) => void) => {
       try {
         const validatedTicketId = ticketIdSchema.parse(ticketId);
