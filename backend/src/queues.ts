@@ -97,6 +97,20 @@ export const messageQueue = new BullQueue("MessageQueue", connection, {
 let isProcessing = false;
 let lastProcessTime = 0;
 
+// Teste de conexão com o Redis
+(async () => {
+  try {
+    await userMonitor.client.ping();
+    logger.info("[Redis] Conexão com Redis UPSTASH estabelecida com sucesso.");
+  } catch (err) {
+    logger.error(`[Redis] ERRO DE CONEXÃO COM REDIS: ${err.message}`);
+    setTimeout(() => {
+      const io = getIO();
+      if (io) io.emit("campaign-worker-log", { message: `[Redis] ERRO CRÍTICO: Não foi possível conectar ao Upstash. Verifique seu REDIS_URI.` });
+    }, 5000);
+  }
+})();
+
 async function handleSendMessage(job) {
   try {
     const { data } = job;
