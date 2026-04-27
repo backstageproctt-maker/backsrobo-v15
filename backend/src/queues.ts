@@ -379,11 +379,21 @@ async function handleSendScheduledMessage(job) {
 }
 
 async function handleVerifyCampaigns(job?: any) {
-  const io = getIO();
+  let io: any;
   try {
-    const now = new Date();
-    // Emitir log para o frontend para diagnóstico
-    io.emit("campaign-worker-log", { message: `[Worker] Verificando campanhas... Hora do servidor: ${moment().format("HH:mm:ss")}` });
+    io = getIO();
+  } catch (e) {
+    logger.error("Socket IO não inicializado para log do worker");
+  }
+
+  try {
+    const now = moment();
+    
+    if (io) {
+      io.emit("campaign-worker-log", { 
+        message: `[Vigia] Batimento: ${now.format("HH:mm:ss")} | Fuso: ${process.env.TZ || "não definido"}` 
+      });
+    }
 
     const campaigns = await Campaign.findAll({
       where: {
@@ -395,20 +405,22 @@ async function handleVerifyCampaigns(job?: any) {
     });
 
     if (campaigns.length > 0) {
-      io.emit("campaign-worker-log", { message: `[Worker] ${campaigns.length} campanhas encontradas pendentes.` });
+      if (io) io.emit("campaign-worker-log", { message: `[Vigia] ${campaigns.length} campanhas pendentes no banco.` });
 
       for (const campaign of campaigns) {
         try {
-          const scheduledDate = new Date(campaign.scheduledAt);
-          const diff = scheduledDate.getTime() - now.getTime();
+          const scheduledDate = moment(campaign.scheduledAt);
+          const diffInSeconds = scheduledDate.diff(now, 'seconds');
 
-          io.emit("campaign-worker-log", { 
-            message: `[Worker] Analisando: ${campaign.name} (ID: ${campaign.id}) | Status: ${campaign.status} | Agendado: ${moment(campaign.scheduledAt).format("HH:mm:ss")} | Diferença: ${Math.round(diff/1000)}s` 
-          });
+          if (io) {
+            io.emit("campaign-worker-log", { 
+              message: `[Vigia] Analisando: ${campaign.name} | Agendado: ${scheduledDate.format("HH:mm:ss")} | Diferença: ${diffInSeconds}s` 
+            });
+          }
 
-          // Se a hora já passou ou faltam menos de 2 minutos
-          if (diff <= 2 * 60 * 1000) {
-            io.emit("campaign-worker-log", { message: `[Worker] >>> DISPARANDO AGORA: ${campaign.name} <<<` });
+          // Se a hora já passou ou falta menos de 2 minutos
+          if (diffInSeconds <= 120) {
+            if (io) io.emit("campaign-worker-log", { message: `[Vigia] >>> DISPARANDO: ${campaign.name} <<<` });
             await campaign.update({ status: "EM_ANDAMENTO" });
 
             await campaignQueue.add(
@@ -423,16 +435,13 @@ async function handleVerifyCampaigns(job?: any) {
             );
           }
         } catch (err) {
-          logger.error(`[Worker] Erro no item ${campaign.id}: ${err.message}`);
+          logger.error(`[Vigia] Erro no item ${campaign.id}: ${err.message}`);
         }
       }
-    } else {
-      io.emit("campaign-worker-log", { message: `[Worker] Nenhuma campanha pendente no momento.` });
     }
   } catch (err: any) {
     Sentry.captureException(err);
-    io.emit("campaign-worker-log", { message: `[Worker] ERRO FATAL: ${err.message}` });
-    logger.error(`[Worker] Erro na verificação: ${err.message}`);
+    if (io) io.emit("campaign-worker-log", { message: `[Vigia] ERRO: ${err.message}` });
   } finally {
     isProcessing = false;
   }
@@ -1888,9 +1897,10 @@ export async function startQueueProcess() {
   );
 
   // Inicia o intervalo de verificação de campanhas (Fail-safe)
+  messageQueue.resume(); // Garante que a fila não inicie pausada
   setInterval(() => {
     handleVerifyCampaigns();
-  }, 30000); // 30 segundos
+  }, 10000); // 10 segundos para feedback rápido no diagnóstico
 
   userMonitor.add(
     "VerifyLoginStatus",
