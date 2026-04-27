@@ -365,30 +365,36 @@ async function handleSendScheduledMessage(job) {
 }
 
 async function handleVerifyCampaigns(job?: any) {
+  const io = getIO();
   try {
     const now = new Date();
-    logger.info(`[Worker] Verificação iniciada às ${moment().format("HH:mm:ss")}`);
+    // Emitir log para o frontend para diagnóstico
+    io.emit("campaign-worker-log", { message: `[Worker] Verificando campanhas... Hora do servidor: ${moment().format("HH:mm:ss")}` });
 
     const campaigns = await Campaign.findAll({
       where: {
         status: {
-          [Op.in]: ["PROGRAMADA", "Programada", "programada", "EM_ANDAMENTO", "Em andamento"]
+          [Op.notIn]: ["FINALIZADA", "CANCELADA"]
         }
       },
       attributes: ["id", "name", "scheduledAt", "companyId", "status"]
     });
 
     if (campaigns.length > 0) {
-      logger.info(`[Worker] >>> ATENÇÃO: ${campaigns.length} CAMPANHAS ENCONTRADAS PARA PROCESSAR <<<`);
+      io.emit("campaign-worker-log", { message: `[Worker] ${campaigns.length} campanhas encontradas pendentes.` });
 
       for (const campaign of campaigns) {
         try {
           const scheduledDate = new Date(campaign.scheduledAt);
           const diff = scheduledDate.getTime() - now.getTime();
 
-          // Se a hora já chegou ou passou (ou falta menos de 1 minuto)
-          if (diff <= 60 * 1000) {
-            logger.info(`[Worker] DISPARANDO: ${campaign.name} (ID: ${campaign.id})`);
+          io.emit("campaign-worker-log", { 
+            message: `[Worker] Analisando: ${campaign.name} (ID: ${campaign.id}) | Status: ${campaign.status} | Agendado: ${moment(campaign.scheduledAt).format("HH:mm:ss")} | Diferença: ${Math.round(diff/1000)}s` 
+          });
+
+          // Se a hora já passou ou faltam menos de 2 minutos
+          if (diff <= 2 * 60 * 1000) {
+            io.emit("campaign-worker-log", { message: `[Worker] >>> DISPARANDO AGORA: ${campaign.name} <<<` });
             await campaign.update({ status: "EM_ANDAMENTO" });
 
             await campaignQueue.add(
@@ -401,16 +407,17 @@ async function handleVerifyCampaigns(job?: any) {
                 removeOnFail: true
               }
             );
-          } else {
-             logger.info(`[Worker] Campanha ${campaign.id} aguardando horário (${moment(campaign.scheduledAt).format("HH:mm")}).`);
           }
         } catch (err) {
           logger.error(`[Worker] Erro no item ${campaign.id}: ${err.message}`);
         }
       }
+    } else {
+      io.emit("campaign-worker-log", { message: `[Worker] Nenhuma campanha pendente no momento.` });
     }
   } catch (err: any) {
     Sentry.captureException(err);
+    io.emit("campaign-worker-log", { message: `[Worker] ERRO FATAL: ${err.message}` });
     logger.error(`[Worker] Erro na verificação: ${err.message}`);
   } finally {
     isProcessing = false;
