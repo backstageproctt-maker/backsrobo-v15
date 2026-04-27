@@ -3,7 +3,8 @@ import BullQueue from "bull";
 import { MessageData, SendMessage } from "./helpers/SendMessage";
 import Whatsapp from "./models/Whatsapp";
 import logger from "./utils/logger";
-import moment from "moment";
+import moment from "moment-timezone";
+moment.tz.setDefault("America/Sao_Paulo");
 import Schedule from "./models/Schedule";
 import { Op, QueryTypes, Sequelize } from "sequelize";
 import GetDefaultWhatsApp from "./helpers/GetDefaultWhatsApp";
@@ -387,8 +388,13 @@ async function handleVerifyCampaigns(job?: any) {
   }
 
   try {
-    const now = moment();
-    if (io) io.emit("campaign-worker-log", { message: `[Vigia] Verificando... ${now.format("HH:mm:ss")}` });
+    const now = moment().tz("America/Sao_Paulo");
+    
+    // Emitir log para o root E para possíveis namespaces
+    if (io) {
+      const logMsg = { message: `[Vigia] TÔ VIVO! | Servidor: ${now.format("HH:mm:ss")} | Fuso: ${process.env.TZ}` };
+      io.emit("campaign-worker-log", logMsg);
+    }
 
     const campaigns = await Campaign.findAll({
       where: {
@@ -398,19 +404,23 @@ async function handleVerifyCampaigns(job?: any) {
       }
     });
 
-    if (io) io.emit("campaign-worker-log", { message: `[Vigia] Encontradas: ${campaigns.length}` });
+    if (io && campaigns.length > 0) io.emit("campaign-worker-log", { message: `[Vigia] Encontradas: ${campaigns.length}` });
 
     for (const campaign of campaigns) {
-      const scheduledDate = moment(campaign.scheduledAt);
+      // Forçar interpretação da data do banco como São Paulo
+      const scheduledDate = moment.tz(campaign.scheduledAt, "America/Sao_Paulo");
       const diff = scheduledDate.diff(now, 'seconds');
 
-      if (io) io.emit("campaign-worker-log", { message: `[Vigia] Campanha ${campaign.id}: diff ${diff}s` });
+      if (io) {
+        io.emit("campaign-worker-log", { 
+          message: `[Vigia] Campanha: ${campaign.name} | Agendado: ${scheduledDate.format("HH:mm:ss")} | Falta: ${diff}s` 
+        });
+      }
 
       if (diff <= 120) {
-        if (io) io.emit("campaign-worker-log", { message: `[Vigia] DISPARANDO AGORA: ${campaign.id}` });
+        if (io) io.emit("campaign-worker-log", { message: `[Vigia] >>> DISPARANDO: ${campaign.name} <<<` });
         await campaign.update({ status: "EM_ANDAMENTO" });
 
-        // Adiciona à fila mas também tenta processar imediatamente se possível
         await campaignQueue.add(
           "ProcessCampaign",
           { id: campaign.id, delay: 0 },

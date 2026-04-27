@@ -1,5 +1,7 @@
 // Forçar fuso horário de Brasília ANTES de qualquer import
 process.env.TZ = 'America/Sao_Paulo';
+import moment from "moment-timezone";
+moment.tz.setDefault("America/Sao_Paulo");
 
 import 'dotenv/config';
 import gracefulShutdown from "http-graceful-shutdown";
