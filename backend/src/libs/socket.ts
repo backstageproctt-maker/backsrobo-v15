@@ -37,14 +37,7 @@ let io: SocketIO;
 export const initIO = (httpServer: Server): SocketIO => {
   io = new SocketIO(httpServer, {
     cors: {
-      origin: (origin, callback) => {
-        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-          callback(null, true);
-        } else {
-          logger.warn(`Origem não autorizada: ${origin}`);
-          callback(new SocketCompatibleAppError("Violação da política CORS", 403));
-        }
-      },
+      origin: true, // Liberar geral para evitar bloqueio no Vercel/Render
       methods: ["GET", "POST"],
       credentials: true,
     },
@@ -52,24 +45,6 @@ export const initIO = (httpServer: Server): SocketIO => {
     pingTimeout: 20000,
     pingInterval: 25000,
   });
-
-  // Middleware de autenticação JWT - DESATIVADO PARA DIAGNÓSTICO TOTAL
-  /*
-  io.use((socket, next) => {
-    const token = socket.handshake.query.token as string;
-    
-    if (token && token !== "undefined") {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret");
-        const validatedPayload = jwtPayloadSchema.parse(decoded);
-        socket.data.user = validatedPayload;
-      } catch (err) {
-        logger.warn("Token inválido recebido, mas permitindo conexão limitada.");
-      }
-    }
-    next();
-  });
-  */
 
   // Admin UI apenas em desenvolvimento
   const isAdminEnabled = process.env.SOCKET_ADMIN === "true" && process.env.NODE_ENV !== "production";
@@ -99,16 +74,6 @@ export const initIO = (httpServer: Server): SocketIO => {
 
   workspaces.on("connection", (socket) => {
     const clientIp = socket.handshake.address;
-
-    // Valida userId
-    let userId: string | undefined;
-    try {
-      userId = userIdSchema.parse(socket.handshake.query.userId);
-    } catch (error) {
-      socket.disconnect(true);
-      logger.warn(`userId inválido de ${clientIp}`);
-      return;
-    }
 
     logger.info(`Cliente conectado ao namespace ${socket.nsp.name} (IP: ${clientIp})`);
 
