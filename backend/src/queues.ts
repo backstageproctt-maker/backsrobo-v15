@@ -390,7 +390,7 @@ async function handleVerifyCampaigns(job?: any) {
     const now = moment();
     
     if (io) {
-      const logMsg = { message: `[Vigia] TÔ VIVO! | Servidor: ${now.format("HH:mm:ss")} | TZ: ${process.env.TZ}` };
+      const logMsg = { message: `[Vigia] TÔ VIVO! | Servidor: ${now.format("HH:mm:ss")} | Status: Verificando...` };
       io.emit("campaign-worker-log", logMsg);
     }
 
@@ -402,7 +402,7 @@ async function handleVerifyCampaigns(job?: any) {
       }
     });
 
-    if (io && campaigns.length > 0) io.emit("campaign-worker-log", { message: `[Vigia] Encontradas: ${campaigns.length}` });
+    if (io && campaigns.length > 0) io.emit("campaign-worker-log", { message: `[Vigia] Campanhas encontradas: ${campaigns.length}` });
 
     for (const campaign of campaigns) {
       const scheduledDate = moment(campaign.scheduledAt);
@@ -410,12 +410,13 @@ async function handleVerifyCampaigns(job?: any) {
 
       if (io) {
         io.emit("campaign-worker-log", { 
-          message: `[Vigia] Campanha: ${campaign.name} | Agendado: ${scheduledDate.format("HH:mm:ss")} | Falta: ${diff}s` 
+          message: `[Vigia] Campanha: "${campaign.name}" | Agendado: ${scheduledDate.format("HH:mm:ss")} | Falta: ${diff}s` 
         });
       }
 
+      // Dispara se faltar menos de 2 minutos ou se já passou do horário
       if (diff <= 120) {
-        if (io) io.emit("campaign-worker-log", { message: `[Vigia] >>> DISPARANDO: ${campaign.name} <<<` });
+        if (io) io.emit("campaign-worker-log", { message: `[Vigia] >>> DISPARANDO AGORA: ${campaign.name} <<<` });
         await campaign.update({ status: "EM_ANDAMENTO" });
 
         await campaignQueue.add(
@@ -426,7 +427,7 @@ async function handleVerifyCampaigns(job?: any) {
       }
     }
   } catch (err: any) {
-    if (io) io.emit("campaign-worker-log", { message: `[Vigia] ERRO: ${err.message}` });
+    if (io) io.emit("campaign-worker-log", { message: `[Vigia] ERRO NO MOTOR: ${err.message}` });
   } finally {
     isProcessing = false;
   }
