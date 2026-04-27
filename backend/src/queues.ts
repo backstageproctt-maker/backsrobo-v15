@@ -371,13 +371,15 @@ async function handleVerifyCampaigns(job?: any) {
 
     const campaigns = await Campaign.findAll({
       where: {
-        status: "PROGRAMADA"
+        status: {
+          [Op.in]: ["PROGRAMADA", "Programada", "programada", "EM_ANDAMENTO", "Em andamento"]
+        }
       },
       attributes: ["id", "name", "scheduledAt", "companyId", "status"]
     });
 
     if (campaigns.length > 0) {
-      logger.info(`[Worker] ${campaigns.length} campanhas pendentes encontradas.`);
+      logger.info(`[Worker] >>> ATENÇÃO: ${campaigns.length} CAMPANHAS ENCONTRADAS PARA PROCESSAR <<<`);
 
       for (const campaign of campaigns) {
         try {
