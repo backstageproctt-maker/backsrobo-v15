@@ -383,64 +383,42 @@ async function handleVerifyCampaigns(job?: any) {
   try {
     io = getIO();
   } catch (e) {
-    logger.error("Socket IO não inicializado para log do worker");
+    logger.error("Socket IO não inicializado");
   }
 
   try {
     const now = moment();
-    
-    if (io) {
-      io.emit("campaign-worker-log", { 
-        message: `[Vigia] Batimento: ${now.format("HH:mm:ss")} | Fuso: ${process.env.TZ || "não definido"}` 
-      });
-    }
+    if (io) io.emit("campaign-worker-log", { message: `[Vigia] Verificando... ${now.format("HH:mm:ss")}` });
 
     const campaigns = await Campaign.findAll({
       where: {
         status: {
-          [Op.notIn]: ["FINALIZADA", "CANCELADA"]
+          [Op.in]: ["PROGRAMADA", "Programada", "programada", "EM_ANDAMENTO", "Em andamento"]
         }
-      },
-      attributes: ["id", "name", "scheduledAt", "companyId", "status"]
+      }
     });
 
-    if (campaigns.length > 0) {
-      if (io) io.emit("campaign-worker-log", { message: `[Vigia] ${campaigns.length} campanhas pendentes no banco.` });
+    if (io) io.emit("campaign-worker-log", { message: `[Vigia] Encontradas: ${campaigns.length}` });
 
-      for (const campaign of campaigns) {
-        try {
-          const scheduledDate = moment(campaign.scheduledAt);
-          const diffInSeconds = scheduledDate.diff(now, 'seconds');
+    for (const campaign of campaigns) {
+      const scheduledDate = moment(campaign.scheduledAt);
+      const diff = scheduledDate.diff(now, 'seconds');
 
-          if (io) {
-            io.emit("campaign-worker-log", { 
-              message: `[Vigia] Analisando: ${campaign.name} | Agendado: ${scheduledDate.format("HH:mm:ss")} | Diferença: ${diffInSeconds}s` 
-            });
-          }
+      if (io) io.emit("campaign-worker-log", { message: `[Vigia] Campanha ${campaign.id}: diff ${diff}s` });
 
-          // Se a hora já passou ou falta menos de 2 minutos
-          if (diffInSeconds <= 120) {
-            if (io) io.emit("campaign-worker-log", { message: `[Vigia] >>> DISPARANDO: ${campaign.name} <<<` });
-            await campaign.update({ status: "EM_ANDAMENTO" });
+      if (diff <= 120) {
+        if (io) io.emit("campaign-worker-log", { message: `[Vigia] DISPARANDO AGORA: ${campaign.id}` });
+        await campaign.update({ status: "EM_ANDAMENTO" });
 
-            await campaignQueue.add(
-              "ProcessCampaign",
-              { id: campaign.id, delay: 0 },
-              {
-                priority: 3,
-                jobId: `campaign-${campaign.id}-${Date.now()}`,
-                removeOnComplete: true,
-                removeOnFail: true
-              }
-            );
-          }
-        } catch (err) {
-          logger.error(`[Vigia] Erro no item ${campaign.id}: ${err.message}`);
-        }
+        // Adiciona à fila mas também tenta processar imediatamente se possível
+        await campaignQueue.add(
+          "ProcessCampaign",
+          { id: campaign.id, delay: 0 },
+          { priority: 1, jobId: `c-${campaign.id}-${Date.now()}` }
+        );
       }
     }
   } catch (err: any) {
-    Sentry.captureException(err);
     if (io) io.emit("campaign-worker-log", { message: `[Vigia] ERRO: ${err.message}` });
   } finally {
     isProcessing = false;
@@ -681,8 +659,11 @@ async function verifyAndFinalizeCampaign(campaign) {
 }
 
 async function handleProcessCampaign(job) {
-  try {
-    const { id }: ProcessCampaignData = job.data;
+  const { id }: ProcessCampaignData = job.data;
+  let io: any;
+  try { io = getIO(); } catch (e) {}
+  if (io) io.emit("campaign-worker-log", { message: `[Motor] Iniciando Campanha ${id}` });
+
     const campaign = await getCampaign(id);
 
     if (!campaign) {
