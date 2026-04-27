@@ -95,6 +95,7 @@ export const messageQueue = new BullQueue("MessageQueue", connection, {
 });
 
 let isProcessing = false;
+let lastProcessTime = 0;
 
 async function handleSendMessage(job) {
   try {
@@ -364,11 +365,15 @@ async function handleSendScheduledMessage(job) {
 }
 
 async function handleVerifyCampaigns(job) {
-  if (isProcessing) {
+  const nowTime = Date.now();
+  // Se estiver processando há mais de 5 minutos, reseta o flag (segurança)
+  if (isProcessing && (nowTime - lastProcessTime) < 5 * 60 * 1000) {
     return;
   }
 
   isProcessing = true;
+  lastProcessTime = nowTime;
+
   try {
     await new Promise(r => setTimeout(r, 1500));
 
@@ -377,27 +382,28 @@ async function handleVerifyCampaigns(job) {
       where: {
         status: "PROGRAMADA",
         scheduledAt: {
-          [Op.between]: [
-            moment().subtract(24, "hours").toDate(),
-            moment().add(7, "days").toDate()  // Expandido de 3h para 7 dias
-          ]
+          [Op.lte]: moment().add(1, "hour").toDate() // Pega tudo que já passou ou está próximo (1h)
         }
       },
-      attributes: ["id", "scheduledAt"]
+      attributes: ["id", "scheduledAt", "companyId"]
     });
 
     if (campaigns.length > 0) {
-      logger.info(`Campanhas encontradas: ${campaigns.length}`);
+      logger.info(`Campanhas encontradas para processar: ${campaigns.length}`);
 
       const promises = campaigns.map(async campaign => {
         try {
-          const now = moment();
-          const scheduledAt = moment(campaign.scheduledAt);
+          const now = moment().utc();
+          const scheduledAt = moment(campaign.scheduledAt).utc();
           const delay = scheduledAt.diff(now, "milliseconds");
 
-          // Só marca como EM_ANDAMENTO se o disparo é em menos de 5 minutos
+          // Só marca como EM_ANDAMENTO se o disparo é agora ou em menos de 5 minutos
           if (delay <= 5 * 60 * 1000) {
+            logger.info(`Iniciando campanha ${campaign.id} (delay: ${delay}ms)`);
             await campaign.update({ status: "EM_ANDAMENTO" });
+          } else {
+            logger.info(`Campanha ${campaign.id} agendada para o futuro (delay: ${delay}ms), aguardando.`);
+            return;
           }
 
           logger.info(
@@ -1924,7 +1930,7 @@ export async function startQueueProcess() {
 
   sendScheduledMessages.process("SendMessage", handleSendScheduledMessage);
 
-  campaignQueue.process("VerifyCampaignsDaatabase", handleVerifyCampaigns);
+  campaignQueue.process("VerifyCampaignsDatabase", handleVerifyCampaigns);
 
   campaignQueue.process("ProcessCampaign", handleProcessCampaign);
 
@@ -1946,7 +1952,7 @@ export async function startQueueProcess() {
   );
 
   campaignQueue.add(
-    "VerifyCampaignsDaatabase",
+    "VerifyCampaignsDatabase",
     {},
     {
       repeat: { cron: "*/20 * * * * *", key: "verify-campaing" },
