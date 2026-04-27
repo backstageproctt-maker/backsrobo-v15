@@ -315,8 +315,14 @@ const App = () => {
     fetchVersionData();
   }, []);
 
+  const [socketStatus, setSocketStatus] = useState("DESCONECTADO");
+
   useEffect(() => {
     const socket = socketConnection();
+
+    socket.on("connect", () => setSocketStatus("CONECTADO"));
+    socket.on("disconnect", () => setSocketStatus("DESCONECTADO"));
+    socket.on("connect_error", () => setSocketStatus("ERRO DE CONEXÃO"));
 
     socket.on("campaign-worker-log", (data) => {
       const color = data.message.includes("ERRO") ? "orange" : "#00b4db";
@@ -334,6 +340,21 @@ const App = () => {
 
   return (
     <>
+      <div style={{
+        position: "fixed",
+        top: 10,
+        right: 10,
+        zIndex: 9999,
+        padding: "4px 10px",
+        borderRadius: "20px",
+        backgroundColor: socketStatus === "CONECTADO" ? "#4caf50" : "#f44336",
+        color: "white",
+        fontSize: "10px",
+        fontWeight: "bold",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.2)"
+      }}>
+        SOCKET: {socketStatus}
+      </div>
       <Favicon url={appLogoFavicon ? getBackendUrl() + "/public/" + appLogoFavicon : defaultLogoFavicon} />
       <ColorModeContext.Provider value={{ colorMode }}>
         <ThemeProvider theme={theme}>
