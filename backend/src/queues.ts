@@ -364,10 +364,10 @@ async function handleSendScheduledMessage(job) {
   }
 }
 
-async function handleVerifyCampaigns(job) {
+async function handleVerifyCampaigns(job?: any) {
   const nowTime = Date.now();
-  // Se estiver processando há mais de 5 minutos, reseta o flag (segurança)
-  if (isProcessing && (nowTime - lastProcessTime) < 5 * 60 * 1000) {
+  // Se estiver processando há mais de 2 minutos, reseta o flag (segurança)
+  if (isProcessing && (nowTime - lastProcessTime) < 2 * 60 * 1000) {
     return;
   }
 
@@ -375,65 +375,56 @@ async function handleVerifyCampaigns(job) {
   lastProcessTime = nowTime;
 
   try {
-    await new Promise(r => setTimeout(r, 1500));
+    const nowUtc = moment().utc();
+    logger.info(`[Worker] Verificando campanhas. Agora (UTC): ${nowUtc.format("YYYY-MM-DD HH:mm:ss")}`);
 
-    logger.info("Iniciando verificação de campanhas programadas...");
     const campaigns = await Campaign.findAll({
       where: {
         status: "PROGRAMADA",
         scheduledAt: {
-          [Op.lte]: moment().add(1, "hour").toDate() // Pega tudo que já passou ou está próximo (1h)
+          [Op.not]: null,
+          [Op.lte]: moment().add(1, "hour").toDate()
         }
       },
-      attributes: ["id", "scheduledAt", "companyId"]
+      attributes: ["id", "name", "scheduledAt", "companyId", "status"]
     });
 
     if (campaigns.length > 0) {
-      logger.info(`Campanhas encontradas para processar: ${campaigns.length}`);
+      logger.info(`[Worker] ${campaigns.length} campanhas encontradas para analisar.`);
 
-      const promises = campaigns.map(async campaign => {
+      for (const campaign of campaigns) {
         try {
-          const now = moment().utc();
           const scheduledAt = moment(campaign.scheduledAt).utc();
-          const delay = scheduledAt.diff(now, "milliseconds");
+          const delay = scheduledAt.diff(nowUtc, "milliseconds");
 
-          // Só marca como EM_ANDAMENTO se o disparo é agora ou em menos de 5 minutos
+          logger.info(`[Worker] Analisando: ${campaign.name} (ID: ${campaign.id}) | Agendado: ${scheduledAt.format("YYYY-MM-DD HH:mm:ss")} | Delay: ${delay}ms`);
+
+          // Se o agendamento já passou ou é em menos de 5 minutos
           if (delay <= 5 * 60 * 1000) {
-            logger.info(`Iniciando campanha ${campaign.id} (delay: ${delay}ms)`);
+            logger.info(`[Worker] Disparando agora: ${campaign.name} (ID: ${campaign.id})`);
             await campaign.update({ status: "EM_ANDAMENTO" });
+
+            await campaignQueue.add(
+              "ProcessCampaign",
+              { id: campaign.id, delay: Math.max(0, delay) },
+              {
+                priority: 3,
+                jobId: `campaign-${campaign.id}-${nowTime}`, // JobId único para evitar colisão
+                removeOnComplete: true,
+                removeOnFail: true
+              }
+            );
           } else {
-            logger.info(`Campanha ${campaign.id} agendada para o futuro (delay: ${delay}ms), aguardando.`);
-            return;
+            logger.info(`[Worker] Campanha ${campaign.id} ainda está no futuro (delay > 5min).`);
           }
-
-          logger.info(
-            `Campanha enviada para a fila: Campanha=${campaign.id}, Delay=${delay}ms`
-          );
-
-          return campaignQueue.add(
-            "ProcessCampaign",
-            { id: campaign.id, delay: Math.max(0, delay) },
-            {
-              priority: 3,
-              jobId: `campaign-${campaign.id}`,
-              removeOnComplete: { age: 60 * 60, count: 10 },
-              removeOnFail: { age: 60 * 60, count: 10 }
-            }
-          );
         } catch (err) {
-          Sentry.captureException(err);
+          logger.error(`[Worker] Erro ao processar item da campanha ${campaign.id}: ${err.message}`);
         }
-      });
-
-      await Promise.all(promises);
-
-      logger.info(
-        "Todas as campanhas foram processadas e adicionadas à fila."
-      );
+      }
     }
   } catch (err: any) {
     Sentry.captureException(err);
-    logger.error(`Error processing campaigns: ${err.message}`);
+    logger.error(`[Worker] Erro geral na verificação de campanhas: ${err.message}`);
   } finally {
     isProcessing = false;
   }
@@ -1951,14 +1942,10 @@ export async function startQueueProcess() {
     }
   );
 
-  campaignQueue.add(
-    "VerifyCampaignsDatabase",
-    {},
-    {
-      repeat: { cron: "*/20 * * * * *", key: "verify-campaing" },
-      removeOnComplete: true
-    }
-  );
+  // Inicia o intervalo de verificação de campanhas (Fail-safe)
+  setInterval(() => {
+    handleVerifyCampaigns();
+  }, 30000); // 30 segundos
 
   userMonitor.add(
     "VerifyLoginStatus",
