@@ -27,6 +27,13 @@ export const StartWhatsAppSession = async (
       wbotMonitor(wbot, whatsapp, companyId);
     }
   } catch (err) {
+    await whatsapp.update({ status: "DISCONNECTED" });
+    const io = getIO();
+    io.of(String(companyId))
+      .emit(`company-${companyId}-whatsappSession`, {
+        action: "update",
+        session: whatsapp
+      });
     Sentry.captureException(err);
     logger.error(err);
   }

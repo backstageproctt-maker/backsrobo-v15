@@ -133,7 +133,7 @@ const wbotMonitor = async (
             if (
               !isJidBroadcast(contact.id) &&
               !isJidStatusBroadcast(contact.id) &&
-              (isLidUser(contact.id) ?? false) // << trocado: era isJidUser(contact.id)
+              !contact.id.includes("@g.us")
             ) {
               const obj: any = { id: contact.id };
 

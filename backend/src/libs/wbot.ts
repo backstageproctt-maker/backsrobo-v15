@@ -322,12 +322,14 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
           );
         }
 
-        logger.info(`Starting session ${name}`);
+        logger.info(`Starting session ${name} (ID: ${whatsapp.id})`);
         let retriesQrCode = 0;
 
         let wsocket: Session = null;
 
+        logger.info(`[${name}] Loading auth state...`);
         const { state, saveCreds } = await useMultiFileAuthState(whatsapp);
+        logger.info(`[${name}] Auth state loaded.`);
         const signalKeyStore = makeCacheableSignalKeyStore(state.keys, logger);
 
         // 2) Cache de metadata de grupos
@@ -409,6 +411,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
 
           cachedGroupMetadata
         });
+        logger.info(`[${name}] WASocket created.`);
 
         // 5) LID Mapping (construtor v7 espera um logger simples)
         const noopLogger = {
@@ -642,7 +645,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
             update,
             (k, v) => (k === "qr" && typeof v === "string" ? "***qr omitted***" : v)
           );
-          logger.info(`Connection Update: ${safe}`);
+          logger.info(`[${name}] Connection Update: ${safe}`);
 
           const { connection, lastDisconnect, qr } = update;
 
